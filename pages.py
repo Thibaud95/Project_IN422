@@ -1,11 +1,10 @@
 import pygame
-from ui import Button
+from ui import Button, InputBox  # Import de la classe InputBox
 
 font = pygame.font.Font(None, 48)
 
 # Initialize global variables
-input_active = False
-user_text = ""
+
 table_data = [["Process", "Arrival Time", "Burst Time"]]
 
 def draw_homepage(screen):
@@ -48,7 +47,7 @@ def draw_sjn_page(screen):
 
 
 def draw_algorithm_page(screen, algo_name):
-    global input_active, user_text, table_data  # Utiliser les variables globales
+    global table_data  # Utiliser les variables globales
 
     # Bouton "Retour"
     back_button = Button(50, 50, 150, 50, "Retour", "home")
@@ -57,18 +56,13 @@ def draw_algorithm_page(screen, algo_name):
     # Titre de la page
     title = font.render(algo_name, True, (255, 255, 255))
 
-    # Boite de texte
-    input_box = pygame.Rect(screen.get_width() - 250, 200, 200, 50)
-    input_color_active = (255, 255, 255)  # Blanc
-    input_color_inactive = (200, 200, 200)  # Gris
+    # Création de l'InputBox
+    input_box = InputBox(screen.get_width() - 250, 200, 200, 50)
 
     # Boucle interne pour gérer les événements
     while True:
         screen.fill((30, 30, 30))  # Fond gris foncé
         screen.blit(title, (540, 50))  # Dessiner le titre
-
-        # Déterminer la couleur de la boîte de saisie
-        input_color = input_color_active if input_active else input_color_inactive
 
         # Gestion des événements
         for event in pygame.event.get():
@@ -85,7 +79,7 @@ def draw_algorithm_page(screen, algo_name):
             action = add_button.handle_event(event)
             if action == "add_processes":
                 try:
-                    num_processes = int(user_text)
+                    num_processes = int(input_box.text)
                     # Ajouter les nouvelles lignes au tableau
                     table_data = [["Process", "Arrival Time", "Burst Time"]]  # Réinitialiser le tableau
                     for i in range(1, num_processes + 1):
@@ -93,24 +87,8 @@ def draw_algorithm_page(screen, algo_name):
                 except ValueError:
                     print("Please enter a valid integer.")
 
-            # Gestion de la boîte de saisie
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if input_box.collidepoint(event.pos):
-                    input_active = True
-                else:
-                    input_active = False
-
-            elif event.type == pygame.KEYDOWN:
-                if input_active:
-                    if event.key == pygame.K_RETURN:
-                        print(f"User entered: {user_text}")
-                        input_active = False
-                    elif event.key == pygame.K_BACKSPACE:
-                        user_text = user_text[:-1]
-                    else:
-                        # Ajoute uniquement les caractères numériques
-                        if event.unicode.isdigit():
-                            user_text += event.unicode
+            # Gestion de l'InputBox
+            input_box.handle_event(event)
 
         # Dessiner les boutons
         back_button.draw(screen)
@@ -136,11 +114,8 @@ def draw_algorithm_page(screen, algo_name):
                 text_rect = text_surface.get_rect(center=cell_rect.center)
                 screen.blit(text_surface, text_rect)
 
-        # Dessiner la boîte de saisie
-        pygame.draw.rect(screen, input_color, input_box)
-        input_text_surface = font.render(user_text, True, (0, 0, 0))
-        input_text_rect = input_text_surface.get_rect(center=input_box.center)
-        screen.blit(input_text_surface, input_text_rect)
+        # Dessiner l'InputBox
+        input_box.draw(screen)
 
         # Mettre à jour l'affichage
         pygame.display.flip()
