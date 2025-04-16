@@ -1,7 +1,7 @@
 import pygame
 pygame.init()  # Initialisation de Pygame avant toute utilisation
 
-from pages import draw_homepage, draw_fcfs_page, draw_rr_page, draw_rm_page, draw_edf_page, draw_sjn_page
+from pages import draw_homepage, draw_fcfs_page, draw_rr_page, draw_rm_page, draw_edf_page, draw_sjn_page, reset_table_data
 
 # Reste du code...
 
@@ -21,6 +21,7 @@ while running:
 
     # Gestion des pages
     if current_page == "home":
+        reset_table_data()  # Réinitialiser les données du tableau
         current_page = draw_homepage(screen)
     elif current_page == "fcfs":
         current_page = draw_fcfs_page(screen)

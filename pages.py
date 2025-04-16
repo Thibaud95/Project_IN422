@@ -56,8 +56,11 @@ def draw_algorithm_page(screen, algo_name):
     # Titre de la page
     title = font.render(algo_name, True, (255, 255, 255))
 
-    # Création de l'InputBox
+    # Création de l'InputBox pour le nombre de processus
     input_box = InputBox(screen.get_width() - 250, 200, 200, 50)
+
+    # Liste pour stocker les InputBox de la colonne "Arrival Time"
+    arrival_time_boxes = []
 
     # Boucle interne pour gérer les événements
     while True:
@@ -80,15 +83,22 @@ def draw_algorithm_page(screen, algo_name):
             if action == "add_processes":
                 try:
                     num_processes = int(input_box.text)
-                    # Ajouter les nouvelles lignes au tableau
-                    table_data = [["Process", "Arrival Time", "Burst Time"]]  # Réinitialiser le tableau
+                    # Réinitialiser le tableau et les InputBox
+                    reset_table_data()
+                    arrival_time_boxes = []
                     for i in range(1, num_processes + 1):
                         table_data.append([f"P{i}", "", ""])
+                        # Ajouter une InputBox pour chaque ligne dans la colonne "Arrival Time"
+                        arrival_time_boxes.append(InputBox(250, 150 + i * 50, 200, 50))
                 except ValueError:
                     print("Please enter a valid integer.")
 
-            # Gestion de l'InputBox
+            # Gestion de l'InputBox pour le nombre de processus
             input_box.handle_event(event)
+
+            # Gestion des InputBox de la colonne "Arrival Time"
+            for box in arrival_time_boxes:
+                box.handle_event(event)
 
         # Dessiner les boutons
         back_button.draw(screen)
@@ -110,13 +120,21 @@ def draw_algorithm_page(screen, algo_name):
                 )
                 pygame.draw.rect(screen, (255, 255, 255), cell_rect)
                 pygame.draw.rect(screen, (0, 0, 0), cell_rect, 2)
-                text_surface = font.render(cell, True, (0, 0, 0))
-                text_rect = text_surface.get_rect(center=cell_rect.center)
-                screen.blit(text_surface, text_rect)
+                if col_index == 1 and row_index > 0:  # Colonne "Arrival Time" (ignorer l'en-tête)
+                    arrival_time_boxes[row_index - 1].draw(screen)
+                else:
+                    text_surface = font.render(cell, True, (0, 0, 0))
+                    text_rect = text_surface.get_rect(center=cell_rect.center)
+                    screen.blit(text_surface, text_rect)
 
-        # Dessiner l'InputBox
+        # Dessiner l'InputBox pour le nombre de processus
         input_box.draw(screen)
 
         # Mettre à jour l'affichage
         pygame.display.flip()
         pygame.time.Clock().tick(60)
+
+def reset_table_data():
+    """Réinitialise les données du tableau et les InputBox."""
+    global table_data
+    table_data = [["Process", "Arrival Time", "Burst Time"]]
