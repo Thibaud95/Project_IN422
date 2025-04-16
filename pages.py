@@ -56,7 +56,13 @@ def draw_algorithm_page(screen, algo_name):
 
     return algo_name.lower()
 
+# Variables globales pour conserver l'état de la boîte de saisie
+input_active = False
+user_text = ""
+
 def draw_fcfs_algorithm_page(screen, algo_name):
+    global input_active, user_text  # Utiliser les variables globales
+
     # Bouton "Retour"
     back_button = Button(50, 50, 150, 50, "Retour", "home")
     add_button = Button(screen.get_width() - 250, 50, 200, 50, "Add Processes", "add_processes")
@@ -69,9 +75,7 @@ def draw_fcfs_algorithm_page(screen, algo_name):
     input_box = pygame.Rect(screen.get_width() - 250, 200, 200, 50)
     input_color_active = (255, 255, 255)  # Blanc
     input_color_inactive = (200, 200, 200)  # Gris
-    input_color = input_color_inactive
-    input_active = False
-    user_text = ""
+    input_color = input_color_active if input_active else input_color_inactive
 
     table_font = pygame.font.Font(None, 28)
     table_data = [["Process", "Arrival Time", "Burst Time"]]
@@ -98,14 +102,12 @@ def draw_fcfs_algorithm_page(screen, algo_name):
                 input_active = True
             else:
                 input_active = False
-            input_color = input_color_active if input_active else input_color_inactive
 
         elif event.type == pygame.KEYDOWN:
             if input_active:
                 if event.key == pygame.K_RETURN:
                     print(f"User entered: {user_text}")
                     input_active = False
-                    input_color = input_color_inactive
                 elif event.key == pygame.K_BACKSPACE:
                     user_text = user_text[:-1]
                 else:
