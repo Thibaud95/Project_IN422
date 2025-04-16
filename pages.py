@@ -3,6 +3,11 @@ from ui import Button
 
 font = pygame.font.Font(None, 48)
 
+# Initialize global variables
+input_active = False
+user_text = ""
+table_data = [["Process", "Arrival Time", "Burst Time"]]
+
 def draw_homepage(screen):
     buttons = [
         Button(540, 200, 200, 50, "FCFS", "fcfs"),
@@ -20,14 +25,14 @@ def draw_homepage(screen):
 
     for event in pygame.event.get():
         for button in buttons:
-            action = button.handle_event(event)
-            if action:
-                return action
+            page = button.handle_event(event)
+            if page:
+                return page
 
     return "home"
 
 def draw_fcfs_page(screen):
-    return draw_fcfs_algorithm_page(screen, "FCFS")
+    return draw_algorithm_page(screen, "FCFS")
 
 def draw_rr_page(screen):
     return draw_algorithm_page(screen, "Round Robin")
@@ -41,27 +46,9 @@ def draw_edf_page(screen):
 def draw_sjn_page(screen):
     return draw_algorithm_page(screen, "Shortest Job Next")
 
+
 def draw_algorithm_page(screen, algo_name):
-    back_button = Button(50, 50, 150, 50, "Retour", "home")
-    
-    title = font.render(algo_name, True, (255, 255, 255))
-    screen.blit(title, (540, 100))
-    
-    back_button.draw(screen)
-
-    for event in pygame.event.get():
-        action = back_button.handle_event(event)
-        if action:
-            return action
-
-    return algo_name.lower()
-
-# Variables globales pour conserver l'état de la boîte de saisie
-input_active = False
-user_text = ""
-
-def draw_fcfs_algorithm_page(screen, algo_name):
-    global input_active, user_text  # Utiliser les variables globales
+    global input_active, user_text, table_data  # Utiliser les variables globales
 
     # Bouton "Retour"
     back_button = Button(50, 50, 150, 50, "Retour", "home")
@@ -69,80 +56,92 @@ def draw_fcfs_algorithm_page(screen, algo_name):
 
     # Titre de la page
     title = font.render(algo_name, True, (255, 255, 255))
-    screen.blit(title, (540, 50))
 
     # Boite de texte
     input_box = pygame.Rect(screen.get_width() - 250, 200, 200, 50)
     input_color_active = (255, 255, 255)  # Blanc
     input_color_inactive = (200, 200, 200)  # Gris
-    input_color = input_color_active if input_active else input_color_inactive
 
-    table_font = pygame.font.Font(None, 28)
-    table_data = [["Process", "Arrival Time", "Burst Time"]]
+    # Boucle interne pour gérer les événements
+    while True:
+        screen.fill((30, 30, 30))  # Fond gris foncé
+        screen.blit(title, (540, 50))  # Dessiner le titre
 
-    # Gestion des événements
-    for event in pygame.event.get():
-        action = back_button.handle_event(event)
-        if action:
-            return action
+        # Déterminer la couleur de la boîte de saisie
+        input_color = input_color_active if input_active else input_color_inactive
 
-        action = add_button.handle_event(event)
-        if action == "add_processes":
-            try:
-                num_processes = int(user_text)
-                table_data = [["Process", "Arrival Time", "Burst Time"]]
-                for i in range(1, num_processes + 1):
-                    table_data.append([f"P{i}", "", ""])
-            except ValueError:
-                print("Please enter a valid integer.")
+        # Gestion des événements
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            # Vérifie si la boîte de saisie est cliquée
-            if input_box.collidepoint(event.pos):
-                input_active = True
-            else:
-                input_active = False
+            # Gestion du bouton "Retour"
+            action = back_button.handle_event(event)
+            if action:
+                return action  # Sortir de la fonction si "Retour" est cliqué
 
-        elif event.type == pygame.KEYDOWN:
-            if input_active:
-                if event.key == pygame.K_RETURN:
-                    print(f"User entered: {user_text}")
-                    input_active = False
-                elif event.key == pygame.K_BACKSPACE:
-                    user_text = user_text[:-1]
+            # Gestion du bouton "Add Processes"
+            action = add_button.handle_event(event)
+            if action == "add_processes":
+                try:
+                    num_processes = int(user_text)
+                    # Ajouter les nouvelles lignes au tableau
+                    table_data = [["Process", "Arrival Time", "Burst Time"]]  # Réinitialiser le tableau
+                    for i in range(1, num_processes + 1):
+                        table_data.append([f"P{i}", "", ""])
+                except ValueError:
+                    print("Please enter a valid integer.")
+
+            # Gestion de la boîte de saisie
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    input_active = True
                 else:
-                    # Ajoute uniquement les caractères numériques
-                    if event.unicode.isdigit():
-                        user_text += event.unicode
+                    input_active = False
 
-    # Dessiner les boutons
-    back_button.draw(screen)
-    add_button.draw(screen)
+            elif event.type == pygame.KEYDOWN:
+                if input_active:
+                    if event.key == pygame.K_RETURN:
+                        print(f"User entered: {user_text}")
+                        input_active = False
+                    elif event.key == pygame.K_BACKSPACE:
+                        user_text = user_text[:-1]
+                    else:
+                        # Ajoute uniquement les caractères numériques
+                        if event.unicode.isdigit():
+                            user_text += event.unicode
 
-    # Dessiner la table
-    cell_width = 200
-    cell_height = 50
-    table_x = 50
-    table_y = 150
+        # Dessiner les boutons
+        back_button.draw(screen)
+        add_button.draw(screen)
 
-    for row_index, row in enumerate(table_data):
-        for col_index, cell in enumerate(row):
-            cell_rect = pygame.Rect(
-                table_x + col_index * cell_width,
-                table_y + row_index * cell_height,
-                cell_width,
-                cell_height
-            )
-            pygame.draw.rect(screen, (255, 255, 255), cell_rect)
-            pygame.draw.rect(screen, (0, 0, 0), cell_rect, 2)
-            text_surface = table_font.render(cell, True, (0, 0, 0))
-            text_rect = text_surface.get_rect(center=cell_rect.center)
-            screen.blit(text_surface, text_rect)
+        # Dessiner la table
+        cell_width = 200
+        cell_height = 50
+        table_x = 50
+        table_y = 150
 
-    # Dessiner la boîte de saisie
-    pygame.draw.rect(screen, input_color, input_box)
-    input_text_surface = font.render(user_text, True, (0, 0, 0))
-    input_text_rect = input_text_surface.get_rect(center=input_box.center)
-    screen.blit(input_text_surface, input_text_rect)
+        for row_index, row in enumerate(table_data):
+            for col_index, cell in enumerate(row):
+                cell_rect = pygame.Rect(
+                    table_x + col_index * cell_width,
+                    table_y + row_index * cell_height,
+                    cell_width,
+                    cell_height
+                )
+                pygame.draw.rect(screen, (255, 255, 255), cell_rect)
+                pygame.draw.rect(screen, (0, 0, 0), cell_rect, 2)
+                text_surface = font.render(cell, True, (0, 0, 0))
+                text_rect = text_surface.get_rect(center=cell_rect.center)
+                screen.blit(text_surface, text_rect)
 
-    return algo_name.lower()
+        # Dessiner la boîte de saisie
+        pygame.draw.rect(screen, input_color, input_box)
+        input_text_surface = font.render(user_text, True, (0, 0, 0))
+        input_text_rect = input_text_surface.get_rect(center=input_box.center)
+        screen.blit(input_text_surface, input_text_rect)
+
+        # Mettre à jour l'affichage
+        pygame.display.flip()
+        pygame.time.Clock().tick(60)
