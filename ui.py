@@ -6,6 +6,7 @@ class Button:
         self.text = text
         self.action = action
         self.font = pygame.font.Font(None, 36)
+
         self.visibility = True
     def draw(self, screen):
         if self.visibility == True :
@@ -15,10 +16,12 @@ class Button:
             text_surf = self.font.render(self.text, True, (0, 0, 0))
             screen.blit(text_surf, text_surf.get_rect(center=self.rect.center))
 
+
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
             return self.action
         return None
+
 
 class InputBox:
     def __init__(self, x, y, w, h, text=''):
@@ -77,4 +80,5 @@ class Text:
             pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)
             text_surf = self.font.render(self.text, True, (0, 0, 0))
             screen.blit(text_surf, text_surf.get_rect(center=self.rect.center))
+
 
