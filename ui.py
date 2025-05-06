@@ -63,3 +63,18 @@ class InputBox:
             # Dessine le texte centré verticalement
             text_rect = self.txt_surface.get_rect(center=self.rect.center)
             screen.blit(self.txt_surface, text_rect)
+
+class Text:
+    def __init__(self, x, y, width, height, text):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = text
+        self.font = pygame.font.Font(None, 36)
+        self.visibility = True
+    def draw(self, screen):
+        if self.visibility == True :
+            color = (255,255,255)
+            pygame.draw.rect(screen, color, self.rect)
+            pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)
+            text_surf = self.font.render(self.text, True, (0, 0, 0))
+            screen.blit(text_surf, text_surf.get_rect(center=self.rect.center))
+

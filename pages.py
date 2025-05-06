@@ -1,11 +1,8 @@
 import pygame
-from ui import Button, InputBox  # Import de la classe InputBox
+from ui import Button, InputBox, Text
 from algorithms.fcfs import FCFS
 
 font = pygame.font.Font(None, 34)
-# Initialize global variables
-
-
 
 def draw_homepage(screen):
     buttons = [
@@ -47,7 +44,6 @@ def draw_sjn_page(screen):
 
 
 def draw_algorithm_page(screen, algo_name):
-    global table_data  # Utiliser les variables globales
 
     # Bouton "Retour"
     back_button = Button(50, 50, 150, 50, "Retour", "home")
@@ -65,6 +61,10 @@ def draw_algorithm_page(screen, algo_name):
     arrival_time_boxes = []
     burst_time_boxes = []
     table_data = [["Process", "Arrival Time", "Burst Time"]]
+    result_text_box = Text(screen.get_width()/2-450, screen.get_height()/2+300, 400, 50, "Résultat")
+    result_text_box.visibility = False
+    result_text_box2 = Text(screen.get_width()/2+50, screen.get_height()/2+300, 400, 50, "Résultat")
+    result_text_box2.visibility = False
     # Boucle interne pour gérer les événements
     while True:
         screen.fill((30, 30, 30))  # Fond gris foncé
@@ -87,14 +87,11 @@ def draw_algorithm_page(screen, algo_name):
                 try:
                     num_processes = int(input_box.text)
                     # Réinitialiser le tableau et les InputBox
-                    table_data = [["Process", "Arrival Time", "Burst Time"]]
-
                     arrival_time_boxes = []
                     burst_time_boxes = []
                     validate_button.visibility = True
                     add_button.visibility = False
                     input_box.visibility = False 
-                    table_data = [["Process", "Arrival Time", "Burst Time"]]
                     for i in range(1, num_processes + 1):
                         table_data.append([f"P{i}", "", ""])
                         # Ajouter une InputBox pour chaque ligne dans la colonne "Arrival Time"
@@ -129,11 +126,14 @@ def draw_algorithm_page(screen, algo_name):
                             process_list.append(("P"+str(i+1),int(arrival_time[i]), int(burst_time[i])))
                         result = FCFS(process_list)
                         print(result) 
-                        table_data = [["Process", "Arrival Time", "Burst Time"]]
                         validate_button.visibility = False
                         table_data = [["Process", "Arrival Time", "Burst Time","Completion Time", "Turnaround Time", "Waiting Time"]]
                         for i in range(1, num_processes + 1):
-                            table_data.append([f"P{i}", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])]) 
+                            table_data.append([f"P{i}", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
+                            result_text_box.text= "Average Turnaround Time : " + str(result["Average Turnaround Time"])
+                            result_text_box2.text= "Average Waiting Time : " + str(result["Average Waiting Time"])
+                            result_text_box.visibility = True
+                            result_text_box2.visibility = True
                     else : print("Enter the parameters before validate")
 
         # Dessiner les boutons
@@ -168,7 +168,8 @@ def draw_algorithm_page(screen, algo_name):
 
         # Dessiner l'InputBox pour le nombre de processus
         input_box.draw(screen)
-
+        result_text_box.draw(screen)
+        result_text_box2.draw(screen)
         # Mettre à jour l'affichage
         pygame.display.flip()
         pygame.time.Clock().tick(60)

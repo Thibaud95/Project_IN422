@@ -19,7 +19,6 @@ while running:
 
     # Gestion des pages
     if current_page == "home":
-        #reset_table_data()  # Réinitialiser les données du tableau
         current_page = draw_homepage(screen)
     elif current_page == "fcfs":
         current_page = draw_fcfs_page(screen)
