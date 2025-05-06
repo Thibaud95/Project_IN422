@@ -1,10 +1,7 @@
 import pygame
 pygame.init()  # Initialisation de Pygame avant toute utilisation
 
-from pages import draw_homepage, draw_fcfs_page, draw_rr_page, draw_rm_page, draw_edf_page, draw_sjn_page, reset_table_data
-
-# Reste du code...
-
+from pages import draw_homepage, draw_fcfs_page, draw_rr_page, draw_rm_page, draw_edf_page, draw_sjn_page
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
@@ -17,11 +14,12 @@ while running:
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+                pygame.quit()
+                exit()
 
     # Gestion des pages
     if current_page == "home":
-        reset_table_data()  # Réinitialiser les données du tableau
+        #reset_table_data()  # Réinitialiser les données du tableau
         current_page = draw_homepage(screen)
     elif current_page == "fcfs":
         current_page = draw_fcfs_page(screen)
