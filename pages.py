@@ -1,7 +1,7 @@
 import pygame
 
 from ui import Button, InputBox, Text
-from algorithms.fcfs import FCFS
+from FCFS_algo import FCFS
 
 font = pygame.font.Font(None, 34)
 
