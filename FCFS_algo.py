@@ -41,4 +41,4 @@ def FCFS(processes):
 process_list = [("P1", 0, 5), ("P2", 1, 3), ("P3", 2, 8)]
 result = FCFS(process_list)
 print(result)
-# Output: {'Completion Time': {'P1': 5, 'P2': 8, 'P3': 16}, 'Turnaround Time': {'P1': 5, 'P2': 7, 'P3': 14}, 'Waiting Time': {'P1': 0, 'P2': 4, 'P3': 6}, 'Average Turnaround Time': 8.666666666666666, 'Average Waiting Time': 3.3333333333333335, 'Schedule': ['P1', 'P2', 'P2', 'P2', 'P1
+# suppose Output: {'Completion Time': {'P1': 5, 'P2': 8, 'P3': 16}, 'Turnaround Time': {'P1': 5, 'P2': 7, 'P3': 14}, 'Waiting Time': {'P1': 0, 'P2': 4, 'P3': 6}, 'Average Turnaround Time': 8.666666666666666, 'Average Waiting Time': 3.3333333333333335, 'Schedule': ['P1', 'P2', 'P2', 'P2', 'P1

@@ -1,8 +1,10 @@
 import pygame
+
 from ui import Button, InputBox, Text
 from algorithms.fcfs import FCFS
 
 font = pygame.font.Font(None, 34)
+
 
 def draw_homepage(screen):
     buttons = [
@@ -45,14 +47,17 @@ def draw_sjn_page(screen):
 
 def draw_algorithm_page(screen, algo_name):
 
+
     # Bouton "Retour"
     back_button = Button(50, 50, 150, 50, "Retour", "home")
     add_button = Button(screen.get_width() - 250, 100, 200, 50, "Add Processes", "add_processes")
     validate_button = Button(screen.get_width() - 250, 200, 200, 50, "Validate", "validate")
     validate_button.visibility = False
 
+
     # Titre de la page
     title = font.render(algo_name, True, (255, 255, 255))
+
 
     # Création de l'InputBox pour le nombre de processus
     input_box = InputBox(screen.get_width() - 250, 50, 200, 50)
@@ -65,10 +70,13 @@ def draw_algorithm_page(screen, algo_name):
     result_text_box.visibility = False
     result_text_box2 = Text(screen.get_width()/2+50, screen.get_height()/2+300, 400, 50, "Résultat")
     result_text_box2.visibility = False
+
     # Boucle interne pour gérer les événements
     while True:
         screen.fill((30, 30, 30))  # Fond gris foncé
         screen.blit(title, (540, 50))  # Dessiner le titre
+
+
 
         # Gestion des événements
         for event in pygame.event.get():
@@ -85,6 +93,7 @@ def draw_algorithm_page(screen, algo_name):
             action = add_button.handle_event(event)
             if action == "add_processes":
                 try:
+
                     num_processes = int(input_box.text)
                     # Réinitialiser le tableau et les InputBox
                     arrival_time_boxes = []
@@ -136,10 +145,13 @@ def draw_algorithm_page(screen, algo_name):
                             result_text_box2.visibility = True
                     else : print("Enter the parameters before validate")
 
+
         # Dessiner les boutons
         back_button.draw(screen)
         add_button.draw(screen)
+
         validate_button.draw(screen)
+
 
         # Dessiner la table
         cell_width = 200
@@ -157,6 +169,7 @@ def draw_algorithm_page(screen, algo_name):
                 )
                 pygame.draw.rect(screen, (255, 255, 255), cell_rect)
                 pygame.draw.rect(screen, (0, 0, 0), cell_rect, 2)
+
                 if col_index == 1 and row_index > 0:  # Colonne "Arrival Time" (ignorer l'en-tête)
                     arrival_time_boxes[row_index - 1].draw(screen)
                 if col_index == 2 and row_index > 0:  # Colonne "Burst Time"    
@@ -173,4 +186,5 @@ def draw_algorithm_page(screen, algo_name):
         # Mettre à jour l'affichage
         pygame.display.flip()
         pygame.time.Clock().tick(60)
+
 
