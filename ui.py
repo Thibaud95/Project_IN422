@@ -22,8 +22,8 @@ class Button:
 class InputBox:
     def __init__(self, x, y, w, h, text=''):
         self.rect = pygame.Rect(x, y, w, h)
-        self.color_inactive = (200, 200, 200)  # Gris
-        self.color_active = (255, 255, 255)  # Blanc
+        self.color_inactive = (255, 255, 255)  # Gris
+        self.color_active = (200, 200, 200)  # Blanc
         self.color = self.color_inactive
         self.text = text
         self.font = pygame.font.Font(None, 36)  # Augmenter la taille de la police

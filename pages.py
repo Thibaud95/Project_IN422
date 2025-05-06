@@ -61,7 +61,7 @@ def draw_algorithm_page(screen, algo_name):
 
     # Liste pour stocker les InputBox de la colonne "Arrival Time"
     arrival_time_boxes = []
-
+    burst_time_boxes = []
     # Boucle interne pour gérer les événements
     while True:
         screen.fill((30, 30, 30))  # Fond gris foncé
@@ -85,11 +85,14 @@ def draw_algorithm_page(screen, algo_name):
                     num_processes = int(input_box.text)
                     # Réinitialiser le tableau et les InputBox
                     reset_table_data()
+
                     arrival_time_boxes = []
+                    burst_time_boxes = []
                     for i in range(1, num_processes + 1):
                         table_data.append([f"P{i}", "", ""])
                         # Ajouter une InputBox pour chaque ligne dans la colonne "Arrival Time"
                         arrival_time_boxes.append(InputBox(250, 150 + i * 50, 200, 50))
+                        burst_time_boxes.append(InputBox(450, 150 + i * 50, 200, 50))
                 except ValueError:
                     print("Please enter a valid integer.")
 
@@ -97,8 +100,17 @@ def draw_algorithm_page(screen, algo_name):
             input_box.handle_event(event)
 
             # Gestion des InputBox de la colonne "Arrival Time"
+            arrival_time = []
             for box in arrival_time_boxes:
                 box.handle_event(event)
+                arrival_time.append(box.text)
+            
+            # Gestion des InputBox de la colonne "Burst Time"
+            burst_time = []
+            for box in burst_time_boxes:
+                box.handle_event(event)
+                burst_time.append(box.text)
+                print(arrival_time[0],burst_time[0])
 
         # Dessiner les boutons
         back_button.draw(screen)
@@ -122,6 +134,8 @@ def draw_algorithm_page(screen, algo_name):
                 pygame.draw.rect(screen, (0, 0, 0), cell_rect, 2)
                 if col_index == 1 and row_index > 0:  # Colonne "Arrival Time" (ignorer l'en-tête)
                     arrival_time_boxes[row_index - 1].draw(screen)
+                if col_index == 2 and row_index > 0:  # Colonne "Burst Time"    
+                    burst_time_boxes[row_index - 1].draw(screen)
                 else:
                     text_surface = font.render(cell, True, (0, 0, 0))
                     text_rect = text_surface.get_rect(center=cell_rect.center)
