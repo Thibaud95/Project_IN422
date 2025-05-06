@@ -1,6 +1,6 @@
 import pygame
 from ui import Button, InputBox  # Import de la classe InputBox
-
+from algorithms.fcfs import FCFS
 font = pygame.font.Font(None, 48)
 
 # Initialize global variables
@@ -51,13 +51,15 @@ def draw_algorithm_page(screen, algo_name):
 
     # Bouton "Retour"
     back_button = Button(50, 50, 150, 50, "Retour", "home")
-    add_button = Button(screen.get_width() - 250, 50, 200, 50, "Add Processes", "add_processes")
+    add_button = Button(screen.get_width() - 250, 100, 200, 50, "Add Processes", "add_processes")
+    validate_button = Button(screen.get_width() - 250, 200, 200, 50, "Validate", "validate")
+    validate_button.visibility = False
 
     # Titre de la page
     title = font.render(algo_name, True, (255, 255, 255))
 
     # Création de l'InputBox pour le nombre de processus
-    input_box = InputBox(screen.get_width() - 250, 200, 200, 50)
+    input_box = InputBox(screen.get_width() - 250, 50, 200, 50)
 
     # Liste pour stocker les InputBox de la colonne "Arrival Time"
     arrival_time_boxes = []
@@ -88,6 +90,9 @@ def draw_algorithm_page(screen, algo_name):
 
                     arrival_time_boxes = []
                     burst_time_boxes = []
+                    validate_button.visibility = True
+                    add_button.visibility = False
+                    input_box.visibility = False 
                     for i in range(1, num_processes + 1):
                         table_data.append([f"P{i}", "", ""])
                         # Ajouter une InputBox pour chaque ligne dans la colonne "Arrival Time"
@@ -95,7 +100,8 @@ def draw_algorithm_page(screen, algo_name):
                         burst_time_boxes.append(InputBox(450, 150 + i * 50, 200, 50))
                 except ValueError:
                     print("Please enter a valid integer.")
-
+            
+            
             # Gestion de l'InputBox pour le nombre de processus
             input_box.handle_event(event)
 
@@ -110,11 +116,20 @@ def draw_algorithm_page(screen, algo_name):
             for box in burst_time_boxes:
                 box.handle_event(event)
                 burst_time.append(box.text)
-                print(arrival_time[0],burst_time[0])
+
+            # Gestion du bouton "Validate"
+            action = validate_button.handle_event(event)
+            if action == "validate":
+                process_list = []
+                for i in range(len(arrival_time)):
+                    process_list.append(("P"+str(i+1),int(arrival_time[i]), int(burst_time[i])))
+                result = FCFS(process_list)
+                print(result)  
 
         # Dessiner les boutons
         back_button.draw(screen)
         add_button.draw(screen)
+        validate_button.draw(screen)
 
         # Dessiner la table
         cell_width = 200

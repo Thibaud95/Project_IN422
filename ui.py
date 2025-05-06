@@ -6,13 +6,14 @@ class Button:
         self.text = text
         self.action = action
         self.font = pygame.font.Font(None, 36)
-
+        self.visibility = True
     def draw(self, screen):
-        color = (0, 200, 0) if self.rect.collidepoint(pygame.mouse.get_pos()) else (0, 255, 0)
-        pygame.draw.rect(screen, color, self.rect)
-        pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)
-        text_surf = self.font.render(self.text, True, (0, 0, 0))
-        screen.blit(text_surf, text_surf.get_rect(center=self.rect.center))
+        if self.visibility == True :
+            color = (0, 200, 0) if self.rect.collidepoint(pygame.mouse.get_pos()) else (0, 255, 0)
+            pygame.draw.rect(screen, color, self.rect)
+            pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)
+            text_surf = self.font.render(self.text, True, (0, 0, 0))
+            screen.blit(text_surf, text_surf.get_rect(center=self.rect.center))
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
@@ -29,6 +30,7 @@ class InputBox:
         self.font = pygame.font.Font(None, 36)  # Augmenter la taille de la police
         self.txt_surface = self.font.render(self.text, True, (0, 0, 0))
         self.active = False
+        self.visibility = True
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -54,9 +56,10 @@ class InputBox:
                 self.txt_surface = self.font.render(self.text, True, (0, 0, 0))
 
     def draw(self, screen):
-        # Dessine la boîte
-        pygame.draw.rect(screen, self.color, self.rect)
-        pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)  # Bordure noire
-        # Dessine le texte centré verticalement
-        text_rect = self.txt_surface.get_rect(center=self.rect.center)
-        screen.blit(self.txt_surface, text_rect)
+        if self.visibility == True :
+            # Dessine la boîte
+            pygame.draw.rect(screen, self.color, self.rect)
+            pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)  # Bordure noire
+            # Dessine le texte centré verticalement
+            text_rect = self.txt_surface.get_rect(center=self.rect.center)
+            screen.blit(self.txt_surface, text_rect)
