@@ -11,14 +11,14 @@ def draw_homepage(screen):
     button_width = 660
     button_height = 136
     button_spacing = 25
-    button_center_on_x = (1920 - button_width) // 2  # Centré horizontalement
+    button_center_on_x = (screen.get_width() - button_width) // 2  # Centré horizontalement
 
     buttons = [
-        Button(button_center_on_x, 193, button_width, button_height, "First Come First Serve", "fcfs"),
-        Button(button_center_on_x, 354, button_width, button_height, "Shortest Job Next", "sjn"),
-        Button(button_center_on_x, 515, button_width, button_height, "Round Robin", "rr"),
-        Button(button_center_on_x, 676, button_width, button_height, "Rate Monotonic", "rm"),
-        Button(button_center_on_x, 837, button_width, button_height, "Earliest Deadline First", "edf"),
+        Button(button_center_on_x, 100, button_width, button_height, "First Come First Serve", "fcfs"),
+        Button(button_center_on_x, 200, button_width, button_height, "Shortest Job Next", "sjn"),
+        Button(button_center_on_x, 300, button_width, button_height, "Round Robin", "rr"),
+        Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
+        Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
     ]
     
     title = font.render("Ordonnancement CPU", True, (255, 255, 255))
@@ -71,7 +71,17 @@ def draw_algorithm_page(screen, algo_name):
     # Liste pour stocker les InputBox de la colonne "Arrival Time"
     arrival_time_boxes = []
     burst_time_boxes = []
-    table_data = [["Process", "Arrival Time", "Burst Time"]]
+    quantum_period_boxes = []
+    deadline_boxes = []
+    if algo_name == "FCFS" or algo_name == "Shortest Job Next":
+        table_data = [["Process", "Arrival Time", "Burst Time"]]
+    elif algo_name == "Round Robin":
+        table_data = [["Process", "Arrival Time", "Burst Time", "Quantum Time"]]
+    elif algo_name == "Rate Monotonic":
+        table_data = [["Process", "Arrival Time", "Burst Time", "Period"]]
+    elif algo_name == "Earliest Deadline First":
+        table_data = [["Process", "Arrival Time", "Burst Time",  "Period", "Deadline"]]
+  
     result_text_box = Text(screen.get_width()/2-450, screen.get_height()/2+300, 400, 50, "Résultat")
     result_text_box.visibility = False
     result_text_box2 = Text(screen.get_width()/2+50, screen.get_height()/2+300, 400, 50, "Résultat")
@@ -99,53 +109,26 @@ def draw_algorithm_page(screen, algo_name):
             action = add_button.handle_event(event)
             if action == "add_processes":
                 try:
-
-
-                    # if algo_name == "FCFS":
-                    #     num_processes = int(user_text)
-                    #     # Ajouter les nouvelles lignes au tableau
-                    #     table_data = [["Process", "Arrival Time", "Burst Time"]]  # Réinitialiser le tableau
-                    #     for i in range(1, num_processes + 1):
-                    #         table_data.append([f"P{i}", "", ""])
-
-                    # elif algo_name == "Shortest Job Next":
-                    #     num_processes = int(user_text)
-                    #     # Ajouter les nouvelles lignes au tableau
-                    #     table_data = [["Process", "Arrival Time", "Burst Time"]]
-                    #     for i in range(1, num_processes + 1):
-                    #         table_data.append([f"P{i}", "", ""])
-
-                    # elif algo_name == "Round Robin":
-                    #     num_processes = int(user_text)
-                    #     # Ajouter les nouvelles lignes au tableau
-                    #     table_data = [["Process", "Arrival Time", "Burst Time", "Quantum Time"]]
-                    #     for i in range(1, num_processes + 1):
-                    #         table_data.append([f"P{i}", "", ""])
-
-                    # elif algo_name == "Rate Monotonic":
-                    #     num_processes = int(user_text)
-                    #     # Ajouter les nouvelles lignes au tableau
-                    #     table_data = [["Process", "Arrival Time", "Burst Time", "Period"]]
-                    #     for i in range(1, num_processes + 1):
-                    #         table_data.append([f"P{i}", "", ""])
-
-                    # elif algo_name == "Earliest Deadline First":
-                    #     num_processes = int(user_text)
-                    #     # Ajouter les nouvelles lignes au tableau
-                    #     table_data = [["Process", "Arrival Time", "Burst Time", "Deadline", "Period"]]
-                    #     for i in range(1, num_processes + 1):
-                    #         table_data.append([f"P{i}", "", ""])
-
-
                     num_processes = int(input_box.text)
                     # Réinitialiser le tableau et les InputBox
                     arrival_time_boxes = []
                     burst_time_boxes = []
+                    quantum_period_boxes = []
+                    deadline_boxes = []
                     validate_button.visibility = True
                     add_button.visibility = False
                     input_box.visibility = False 
+
                     for i in range(1, num_processes + 1):
-                        table_data.append([f"P{i}", "", ""])
+                        if algo_name == "FCFS" or algo_name == "Shortest Job Next":
+                            table_data.append([f"P{i}", "", ""])
+                        elif algo_name == "Round Robin" or algo_name == "Rate Monotonic":
+                            table_data.append([f"P{i}", "", "", ""])
+                            quantum_period_boxes.append(InputBox(650, 150 + i * 50, 200, 50))
+                        elif algo_name == "Earliest Deadline First":
+                            table_data.append([f"P{i}", "", "", "", ""])
+                            quantum_period_boxes.append(InputBox(650, 150 + i * 50, 200, 50))
+                            deadline_boxes.append(InputBox(850, 150 + i * 50, 200, 50))
                         # Ajouter une InputBox pour chaque ligne dans la colonne "Arrival Time"
                         arrival_time_boxes.append(InputBox(250, 150 + i * 50, 200, 50))
                         burst_time_boxes.append(InputBox(450, 150 + i * 50, 200, 50))
@@ -168,6 +151,21 @@ def draw_algorithm_page(screen, algo_name):
             for box in burst_time_boxes:
                 box.handle_event(event)
                 burst_time.append(box.text)
+            
+            if algo_name == "Round Robin" or algo_name == "Rate Monotonic":
+                quantum_period = []
+                for box in quantum_period_boxes:
+                    box.handle_event(event)
+                    quantum_period.append(box.text)
+            elif algo_name == "Earliest Deadline First":
+                quantum_period = []
+                for box in quantum_period_boxes:
+                    box.handle_event(event)
+                    quantum_period.append(box.text)
+                deadline = []
+                for box in deadline_boxes:
+                    box.handle_event(event)
+                    deadline.append(box.text)
 
             # Gestion du bouton "Validate"
             action = validate_button.handle_event(event)
@@ -216,8 +214,24 @@ def draw_algorithm_page(screen, algo_name):
 
                 if col_index == 1 and row_index > 0:  # Colonne "Arrival Time" (ignorer l'en-tête)
                     arrival_time_boxes[row_index - 1].draw(screen)
-                if col_index == 2 and row_index > 0:  # Colonne "Burst Time"    
+                elif col_index == 2 and row_index > 0:  # Colonne "Burst Time"    
                     burst_time_boxes[row_index - 1].draw(screen)
+                elif algo_name == "Round Robin" or algo_name == "Rate Monotonic":
+                    if col_index == 3 and row_index > 0:  # Colonne "Quantum or Period"    
+                        quantum_period_boxes[row_index - 1].draw(screen)
+                    else :
+                        text_surface = font.render(cell, True, (0, 0, 0))
+                        text_rect = text_surface.get_rect(center=cell_rect.center)
+                        screen.blit(text_surface, text_rect)
+                elif algo_name == "Earliest Deadline First":
+                    if col_index == 3 and row_index > 0:  # Colonne "Quantum or Period"    
+                        quantum_period_boxes[row_index - 1].draw(screen)
+                    elif col_index == 4 and row_index > 0:  # Colonne "Deadline"    
+                        deadline_boxes[row_index - 1].draw(screen)
+                    else :
+                        text_surface = font.render(cell, True, (0, 0, 0))
+                        text_rect = text_surface.get_rect(center=cell_rect.center)
+                        screen.blit(text_surface, text_rect)
                 else:
                     text_surface = font.render(cell, True, (0, 0, 0))
                     text_rect = text_surface.get_rect(center=cell_rect.center)
@@ -229,6 +243,6 @@ def draw_algorithm_page(screen, algo_name):
         result_text_box2.draw(screen)
         # Mettre à jour l'affichage
         pygame.display.flip()
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(360)
 
 

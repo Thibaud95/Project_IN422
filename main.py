@@ -4,7 +4,14 @@ pygame.init()  # Initialisation de Pygame avant toute utilisation
 from pages import draw_homepage, draw_fcfs_page, draw_rr_page, draw_rm_page, draw_edf_page, draw_sjn_page
 
 
-screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
+screen_info = pygame.display.Info()
+screen_width = screen_info.current_w
+screen_height = screen_info.current_h
+
+print("Largeur de l'écran :", screen_width, "pixels")
+print("Hauteur de l'écran :", screen_height, "pixels")
+
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 
 clock = pygame.time.Clock()
 running = True
@@ -37,6 +44,6 @@ while running:
         current_page = draw_sjn_page(screen)
 
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(360)
 
 pygame.quit()
