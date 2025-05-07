@@ -1,5 +1,6 @@
 import pygame
 
+
 from ui import Button, InputBox, Text
 from FCFS_algo import FCFS
 
@@ -7,16 +8,21 @@ font = pygame.font.Font(None, 34)
 
 
 def draw_homepage(screen):
+    button_width = 660
+    button_height = 136
+    button_spacing = 25
+    button_center_on_x = (1920 - button_width) // 2  # Centré horizontalement
+
     buttons = [
-        Button(540, 200, 200, 50, "FCFS", "fcfs"),
-        Button(540, 270, 200, 50, "Round Robin", "rr"),
-        Button(540, 340, 200, 50, "Rate Monotonic", "rm"),
-        Button(540, 410, 200, 50, "EDF", "edf"),
-        Button(540, 480, 200, 50, "SJN", "sjn"),
+        Button(button_center_on_x, 193, button_width, button_height, "First Come First Serve", "fcfs"),
+        Button(button_center_on_x, 354, button_width, button_height, "Shortest Job Next", "sjn"),
+        Button(button_center_on_x, 515, button_width, button_height, "Round Robin", "rr"),
+        Button(button_center_on_x, 676, button_width, button_height, "Rate Monotonic", "rm"),
+        Button(button_center_on_x, 837, button_width, button_height, "Earliest Deadline First", "edf"),
     ]
     
     title = font.render("Ordonnancement CPU", True, (255, 255, 255))
-    screen.blit(title, (480, 100))
+    screen.blit(title, title.get_rect(center=(1920 // 2, 100)))
     
     for button in buttons:
         button.draw(screen)
@@ -94,6 +100,43 @@ def draw_algorithm_page(screen, algo_name):
             if action == "add_processes":
                 try:
 
+
+                    # if algo_name == "FCFS":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time"]]  # Réinitialiser le tableau
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
+
+                    # elif algo_name == "Shortest Job Next":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time"]]
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
+
+                    # elif algo_name == "Round Robin":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time", "Quantum Time"]]
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
+
+                    # elif algo_name == "Rate Monotonic":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time", "Period"]]
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
+
+                    # elif algo_name == "Earliest Deadline First":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time", "Deadline", "Period"]]
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
+
+
                     num_processes = int(input_box.text)
                     # Réinitialiser le tableau et les InputBox
                     arrival_time_boxes = []
@@ -106,6 +149,7 @@ def draw_algorithm_page(screen, algo_name):
                         # Ajouter une InputBox pour chaque ligne dans la colonne "Arrival Time"
                         arrival_time_boxes.append(InputBox(250, 150 + i * 50, 200, 50))
                         burst_time_boxes.append(InputBox(450, 150 + i * 50, 200, 50))
+
                 except ValueError:
                     print("Please enter a valid integer.")
             
