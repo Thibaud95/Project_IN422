@@ -30,7 +30,7 @@ class InputBox:
         self.color_active = (200, 200, 200)  # Blanc
         self.color = self.color_inactive
         self.text = text
-        self.font = pygame.font.Font(None, 36)  # Augmenter la taille de la police
+        self.font = pygame.font.Font(None, 21)  # Augmenter la taille de la police
         self.txt_surface = self.font.render(self.text, True, (0, 0, 0))
         self.active = False
         self.visibility = True

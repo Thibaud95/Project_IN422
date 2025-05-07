@@ -2,9 +2,13 @@ import pygame
 
 
 from ui import Button, InputBox, Text
-from FCFS_algo import FCFS
+from EDF_algo import FCFS
+from RM_algo import RM
+from RR_algo import RR
+from SJN_algo import SJN
 
-font = pygame.font.Font(None, 34)
+
+font = pygame.font.Font(None, 21)
 
 
 def draw_homepage(screen):
@@ -124,14 +128,14 @@ def draw_algorithm_page(screen, algo_name):
                             table_data.append([f"P{i}", "", ""])
                         elif algo_name == "Round Robin" or algo_name == "Rate Monotonic":
                             table_data.append([f"P{i}", "", "", ""])
-                            quantum_period_boxes.append(InputBox(650, 150 + i * 50, 200, 50))
+                            quantum_period_boxes.append(InputBox(425, 150 + i * 50, 125, 50))
                         elif algo_name == "Earliest Deadline First":
                             table_data.append([f"P{i}", "", "", "", ""])
-                            quantum_period_boxes.append(InputBox(650, 150 + i * 50, 200, 50))
-                            deadline_boxes.append(InputBox(850, 150 + i * 50, 200, 50))
+                            quantum_period_boxes.append(InputBox(425, 150 + i * 50, 125, 50))
+                            deadline_boxes.append(InputBox(550, 150 + i * 50, 125, 50))
                         # Ajouter une InputBox pour chaque ligne dans la colonne "Arrival Time"
-                        arrival_time_boxes.append(InputBox(250, 150 + i * 50, 200, 50))
-                        burst_time_boxes.append(InputBox(450, 150 + i * 50, 200, 50))
+                        arrival_time_boxes.append(InputBox(175, 150 + i * 50, 125, 50))
+                        burst_time_boxes.append(InputBox(300, 150 + i * 50, 125, 50))
 
                 except ValueError:
                     print("Please enter a valid integer.")
@@ -196,7 +200,7 @@ def draw_algorithm_page(screen, algo_name):
 
 
         # Dessiner la table
-        cell_width = 200
+        cell_width = 125
         cell_height = 50
         table_x = 50
         table_y = 150
