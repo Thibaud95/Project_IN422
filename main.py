@@ -5,7 +5,8 @@ from pages import draw_homepage, draw_fcfs_page, draw_rr_page, draw_rm_page, dra
 
 # Reste du code...
 
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
+
 clock = pygame.time.Clock()
 running = True
 
