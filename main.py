@@ -3,10 +3,7 @@ pygame.init()  # Initialisation de Pygame avant toute utilisation
 
 from pages import draw_homepage, draw_fcfs_page, draw_rr_page, draw_rm_page, draw_edf_page, draw_sjn_page
 
-# Reste du code...
-
 screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
-
 clock = pygame.time.Clock()
 running = True
 
@@ -18,7 +15,10 @@ while running:
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+
+                pygame.quit()
+                exit()
+
 
     # Gestion des pages
     if current_page == "home":

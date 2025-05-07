@@ -1,12 +1,10 @@
 import pygame
-from ui import Button
 
-font = pygame.font.Font(None, 96)
 
-# Initialize global variables
-input_active = False
-user_text = ""
-table_data = [["Process", "Arrival Time", "Burst Time","",""]]
+from ui import Button, InputBox, Text
+from algorithms.fcfs import FCFS
+
+font = pygame.font.Font(None, 34)
 
 def draw_homepage(screen):
     button_width = 660
@@ -53,27 +51,37 @@ def draw_sjn_page(screen):
 
 
 def draw_algorithm_page(screen, algo_name):
-    global input_active, user_text, table_data  # Utiliser les variables globales
+
 
     # Bouton "Retour"
     back_button = Button(50, 50, 150, 50, "Retour", "home")
-    add_button = Button(screen.get_width() - 250, 50, 200, 50, "Add Processes", "add_processes")
+    add_button = Button(screen.get_width() - 250, 100, 200, 50, "Add Processes", "add_processes")
+    validate_button = Button(screen.get_width() - 250, 200, 200, 50, "Validate", "validate")
+    validate_button.visibility = False
+
 
     # Titre de la page
     title = font.render(algo_name, True, (255, 255, 255))
 
-    # Boite de texte
-    input_box = pygame.Rect(screen.get_width() - 250, 200, 200, 50)
-    input_color_active = (255, 255, 255)  # Blanc
-    input_color_inactive = (200, 200, 200)  # Gris
+
+    # Création de l'InputBox pour le nombre de processus
+    input_box = InputBox(screen.get_width() - 250, 50, 200, 50)
+
+    # Liste pour stocker les InputBox de la colonne "Arrival Time"
+    arrival_time_boxes = []
+    burst_time_boxes = []
+    table_data = [["Process", "Arrival Time", "Burst Time"]]
+    result_text_box = Text(screen.get_width()/2-450, screen.get_height()/2+300, 400, 50, "Résultat")
+    result_text_box.visibility = False
+    result_text_box2 = Text(screen.get_width()/2+50, screen.get_height()/2+300, 400, 50, "Résultat")
+    result_text_box2.visibility = False
 
     # Boucle interne pour gérer les événements
     while True:
         screen.fill((30, 30, 30))  # Fond gris foncé
         screen.blit(title, (540, 50))  # Dessiner le titre
 
-        # Déterminer la couleur de la boîte de saisie
-        input_color = input_color_active if input_active else input_color_inactive
+
 
         # Gestion des événements
         for event in pygame.event.get():
@@ -90,66 +98,101 @@ def draw_algorithm_page(screen, algo_name):
             action = add_button.handle_event(event)
             if action == "add_processes":
                 try:
-                    if algo_name == "FCFS":
-                        num_processes = int(user_text)
-                        # Ajouter les nouvelles lignes au tableau
-                        table_data = [["Process", "Arrival Time", "Burst Time"]]  # Réinitialiser le tableau
-                        for i in range(1, num_processes + 1):
-                            table_data.append([f"P{i}", "", ""])
 
-                    elif algo_name == "Shortest Job Next":
-                        num_processes = int(user_text)
-                        # Ajouter les nouvelles lignes au tableau
-                        table_data = [["Process", "Arrival Time", "Burst Time"]]
-                        for i in range(1, num_processes + 1):
-                            table_data.append([f"P{i}", "", ""])
+                    # if algo_name == "FCFS":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time"]]  # Réinitialiser le tableau
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
 
-                    elif algo_name == "Round Robin":
-                        num_processes = int(user_text)
-                        # Ajouter les nouvelles lignes au tableau
-                        table_data = [["Process", "Arrival Time", "Burst Time", "Quantum Time"]]
-                        for i in range(1, num_processes + 1):
-                            table_data.append([f"P{i}", "", ""])
+                    # elif algo_name == "Shortest Job Next":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time"]]
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
 
-                    elif algo_name == "Rate Monotonic":
-                        num_processes = int(user_text)
-                        # Ajouter les nouvelles lignes au tableau
-                        table_data = [["Process", "Arrival Time", "Burst Time", "Period"]]
-                        for i in range(1, num_processes + 1):
-                            table_data.append([f"P{i}", "", ""])
+                    # elif algo_name == "Round Robin":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time", "Quantum Time"]]
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
 
-                    elif algo_name == "Earliest Deadline First":
-                        num_processes = int(user_text)
-                        # Ajouter les nouvelles lignes au tableau
-                        table_data = [["Process", "Arrival Time", "Burst Time", "Deadline", "Period"]]
-                        for i in range(1, num_processes + 1):
-                            table_data.append([f"P{i}", "", ""])
+                    # elif algo_name == "Rate Monotonic":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time", "Period"]]
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
+
+                    # elif algo_name == "Earliest Deadline First":
+                    #     num_processes = int(user_text)
+                    #     # Ajouter les nouvelles lignes au tableau
+                    #     table_data = [["Process", "Arrival Time", "Burst Time", "Deadline", "Period"]]
+                    #     for i in range(1, num_processes + 1):
+                    #         table_data.append([f"P{i}", "", ""])
+
+                    num_processes = int(input_box.text)
+                    # Réinitialiser le tableau et les InputBox
+                    arrival_time_boxes = []
+                    burst_time_boxes = []
+                    validate_button.visibility = True
+                    add_button.visibility = False
+                    input_box.visibility = False 
+                    for i in range(1, num_processes + 1):
+                        table_data.append([f"P{i}", "", ""])
+                        # Ajouter une InputBox pour chaque ligne dans la colonne "Arrival Time"
+                        arrival_time_boxes.append(InputBox(250, 150 + i * 50, 200, 50))
+                        burst_time_boxes.append(InputBox(450, 150 + i * 50, 200, 50))
 
                 except ValueError:
                     print("Please enter a valid integer.")
+            
+            
+            # Gestion de l'InputBox pour le nombre de processus
+            input_box.handle_event(event)
 
-            # Gestion de la boîte de saisie
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if input_box.collidepoint(event.pos):
-                    input_active = True
-                else:
-                    input_active = False
+            # Gestion des InputBox de la colonne "Arrival Time"
+            arrival_time = []
+            for box in arrival_time_boxes:
+                box.handle_event(event)
+                arrival_time.append(box.text)
+            
+            # Gestion des InputBox de la colonne "Burst Time"
+            burst_time = []
+            for box in burst_time_boxes:
+                box.handle_event(event)
+                burst_time.append(box.text)
 
-            elif event.type == pygame.KEYDOWN:
-                if input_active:
-                    if event.key == pygame.K_RETURN:
-                        print(f"User entered: {user_text}")
-                        input_active = False
-                    elif event.key == pygame.K_BACKSPACE:
-                        user_text = user_text[:-1]
-                    else:
-                        # Ajoute uniquement les caractères numériques
-                        if event.unicode.isdigit():
-                            user_text += event.unicode
+            # Gestion du bouton "Validate"
+            action = validate_button.handle_event(event)
+            if action == "validate":
+                for i in range(num_processes):
+                    if arrival_time[i] != "" and burst_time[i] != "":
+                        process_list = []
+                        for i in range(len(arrival_time)):
+                            process_list.append(("P"+str(i+1),int(arrival_time[i]), int(burst_time[i])))
+                        result = FCFS(process_list)
+                        print(result) 
+                        validate_button.visibility = False
+                        table_data = [["Process", "Arrival Time", "Burst Time","Completion Time", "Turnaround Time", "Waiting Time"]]
+                        for i in range(1, num_processes + 1):
+                            table_data.append([f"P{i}", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
+                            result_text_box.text= "Average Turnaround Time : " + str(result["Average Turnaround Time"])
+                            result_text_box2.text= "Average Waiting Time : " + str(result["Average Waiting Time"])
+                            result_text_box.visibility = True
+                            result_text_box2.visibility = True
+                    else : print("Enter the parameters before validate")
+
 
         # Dessiner les boutons
         back_button.draw(screen)
         add_button.draw(screen)
+
+        validate_button.draw(screen)
+
 
         # Dessiner la table
         cell_width = 200
@@ -167,16 +210,22 @@ def draw_algorithm_page(screen, algo_name):
                 )
                 pygame.draw.rect(screen, (255, 255, 255), cell_rect)
                 pygame.draw.rect(screen, (0, 0, 0), cell_rect, 2)
-                text_surface = font.render(cell, True, (0, 0, 0))
-                text_rect = text_surface.get_rect(center=cell_rect.center)
-                screen.blit(text_surface, text_rect)
 
-        # Dessiner la boîte de saisie
-        pygame.draw.rect(screen, input_color, input_box)
-        input_text_surface = font.render(user_text, True, (0, 0, 0))
-        input_text_rect = input_text_surface.get_rect(center=input_box.center)
-        screen.blit(input_text_surface, input_text_rect)
+                if col_index == 1 and row_index > 0:  # Colonne "Arrival Time" (ignorer l'en-tête)
+                    arrival_time_boxes[row_index - 1].draw(screen)
+                if col_index == 2 and row_index > 0:  # Colonne "Burst Time"    
+                    burst_time_boxes[row_index - 1].draw(screen)
+                else:
+                    text_surface = font.render(cell, True, (0, 0, 0))
+                    text_rect = text_surface.get_rect(center=cell_rect.center)
+                    screen.blit(text_surface, text_rect)
 
+        # Dessiner l'InputBox pour le nombre de processus
+        input_box.draw(screen)
+        result_text_box.draw(screen)
+        result_text_box2.draw(screen)
         # Mettre à jour l'affichage
         pygame.display.flip()
         pygame.time.Clock().tick(60)
+
+
