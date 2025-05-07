@@ -2,9 +2,10 @@ import pygame
 
 
 from ui import Button, InputBox, Text
-from algorithms.fcfs import FCFS
+from FCFS_algo import FCFS
 
 font = pygame.font.Font(None, 34)
+
 
 def draw_homepage(screen):
     button_width = 660
@@ -99,6 +100,7 @@ def draw_algorithm_page(screen, algo_name):
             if action == "add_processes":
                 try:
 
+
                     # if algo_name == "FCFS":
                     #     num_processes = int(user_text)
                     #     # Ajouter les nouvelles lignes au tableau
@@ -133,6 +135,7 @@ def draw_algorithm_page(screen, algo_name):
                     #     table_data = [["Process", "Arrival Time", "Burst Time", "Deadline", "Period"]]
                     #     for i in range(1, num_processes + 1):
                     #         table_data.append([f"P{i}", "", ""])
+
 
                     num_processes = int(input_box.text)
                     # Réinitialiser le tableau et les InputBox
