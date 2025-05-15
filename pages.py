@@ -12,13 +12,43 @@ from SJN_algo import SJN
 font = pygame.font.Font(None, 21)
 
 
-def draw_homepage(screen):
+def draw_homepage_1(screen):
     button_width = 660
     button_height = 136
     button_spacing = 25
     button_center_on_x = (screen.get_width() - button_width) // 2  # Centré horizontalement
 
     buttons = [
+        Button(button_center_on_x, 100, button_width, button_height, "Beginner", "fcfs"),
+        Button(button_center_on_x, 300, button_width, button_height, "Expert", "home2"),
+        Button(button_center_on_x, 500, button_width, button_height, "Quit", "quit"),
+    ]
+    
+    title = font.render("Tasks Manager", True, (255, 255, 255))
+    screen.blit(title, title.get_rect(center=(1920 // 2, 100)))
+    
+    for button in buttons:
+        button.draw(screen)
+
+    for event in pygame.event.get():
+        for button in buttons :
+            page = button.handle_event(event)
+            if page:
+                if page == "quit":
+                    pygame.quit()
+                    exit()
+                else:
+                    return page
+    return "home"
+
+def draw_homepage_2(screen):
+    button_width = 660
+    button_height = 136
+    button_spacing = 25
+    button_center_on_x = (screen.get_width() - button_width) // 2  # Centré horizontalement
+
+    buttons = [
+        Button(100, 100, 200, 50, "Back", "home"),
         Button(button_center_on_x, 100, button_width, button_height, "First Come First Serve", "fcfs"),
         Button(button_center_on_x, 200, button_width, button_height, "Shortest Job Next", "sjn"),
         Button(button_center_on_x, 300, button_width, button_height, "Round Robin", "rr"),
@@ -26,19 +56,18 @@ def draw_homepage(screen):
         Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
     ]
     
-    title = font.render("Ordonnancement CPU", True, (255, 255, 255))
+    title = font.render("Tasks Manager", True, (255, 255, 255))
     screen.blit(title, title.get_rect(center=(1920 // 2, 100)))
-    
+
     for button in buttons:
         button.draw(screen)
 
     for event in pygame.event.get():
-        for button in buttons:
+        for button in buttons :
             page = button.handle_event(event)
             if page:
                 return page
-
-    return "home"
+    return "home2"
 
 def draw_fcfs_page(screen):
     return draw_algorithm_page(screen, "FCFS")
@@ -57,10 +86,8 @@ def draw_sjn_page(screen):
 
 
 def draw_algorithm_page(screen, algo_name):
-
-
     # Bouton "Retour"
-    back_button = Button(50, 50, 150, 50, "Retour", "home")
+    back_button = Button(50, 50, 150, 50, "Back", "home2")
     add_button = Button(screen.get_width() - 250, 100, 200, 50, "Add Processes", "add_processes")
     validate_button = Button(screen.get_width() - 250, 200, 200, 50, "Validate", "validate")
     validate_button.visibility = False
@@ -105,8 +132,6 @@ def draw_algorithm_page(screen, algo_name):
     while True:
         screen.fill((30, 30, 30))  # Fond gris foncé
         screen.blit(title, (540, 50))  # Dessiner le titre
-
-
 
         # Gestion des événements
         for event in pygame.event.get():
