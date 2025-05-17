@@ -1,7 +1,7 @@
 import pygame
 pygame.init()  # Initialisation de Pygame avant toute utilisation
 
-from pages import draw_beginner_page_2, draw_beginner_page_3, draw_beginner_page_4, draw_homepage_1,draw_homepage_2,draw_beginner_page_1, draw_fcfs_page, draw_rr_page, draw_rm_page, draw_edf_page, draw_sjn_page
+from pages import draw_beginner_page_2, draw_beginner_page_3, draw_beginner_page_4, draw_comparison_page, draw_homepage_1,draw_homepage_2,draw_beginner_page_1, draw_fcfs_page, draw_rr_page, draw_rm_page, draw_edf_page, draw_sjn_page
 
 screen_info = pygame.display.Info()
 screen_width = screen_info.current_w
@@ -51,6 +51,8 @@ while running:
         current_page = draw_edf_page(screen)
     elif current_page == "sjn":
         current_page = draw_sjn_page(screen)
+    elif current_page == "comparison":
+        current_page = draw_comparison_page(screen)
 
     pygame.display.flip()
     clock.tick(360)
