@@ -19,7 +19,7 @@ def draw_homepage_1(screen):
     button_center_on_x = (screen.get_width() - button_width) // 2  # Centré horizontalement
 
     buttons = [
-        Button(button_center_on_x, 100, button_width, button_height, "Beginner", "fcfs"),
+        Button(button_center_on_x, 100, button_width, button_height, "Beginner", "beginner1"),
         Button(button_center_on_x, 300, button_width, button_height, "Expert", "home2"),
         Button(button_center_on_x, 500, button_width, button_height, "Quit", "quit"),
     ]
@@ -41,20 +41,55 @@ def draw_homepage_1(screen):
                     return page
     return "home"
 
-def draw_homepage_2(screen):
+def draw_homepage_2(screen, action=None):
     button_width = 660
     button_height = 136
     button_spacing = 25
     button_center_on_x = (screen.get_width() - button_width) // 2  # Centré horizontalement
 
-    buttons = [
-        Button(100, 100, 200, 50, "Back", "home"),
-        Button(button_center_on_x, 100, button_width, button_height, "First Come First Serve", "fcfs"),
-        Button(button_center_on_x, 200, button_width, button_height, "Shortest Job Next", "sjn"),
-        Button(button_center_on_x, 300, button_width, button_height, "Round Robin", "rr"),
-        Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
-        Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
-    ]
+    if action == None:
+        buttons = [
+            Button(100, 100, 200, 50, "Back", "home"),
+            Button(button_center_on_x, 100, button_width, button_height, "First Come First Serve", "fcfs"),
+            Button(button_center_on_x, 200, button_width, button_height, "Shortest Job Next", "sjn"),
+            Button(button_center_on_x, 300, button_width, button_height, "Round Robin", "rr"),
+            Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
+            Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
+        ]
+    elif action == "preemption":
+        buttons = [
+            Button(100, 100, 200, 50, "Back", "beginner2"),
+            Button(button_center_on_x, 100, button_width, button_height, "First Come First Serve", "fcfs"),
+            Button(button_center_on_x, 200, button_width, button_height, "Shortest Job Next", "sjn"),
+        ]
+    elif action == "non_preemption":
+        buttons = [
+            Button(100, 100, 200, 50, "Back", "beginner2"),
+            Button(button_center_on_x, 300, button_width, button_height, "Round Robin", "rr"),
+            Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
+            Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
+        ]
+    elif action == "soft_real_time":
+        buttons = [
+            Button(100, 100, 200, 50, "Back", "beginner3"),
+            Button(button_center_on_x, 300, button_width, button_height, "Round Robin", "rr"),
+        ]
+    elif action == "hard_real_time":
+        buttons = [
+            Button(100, 100, 200, 50, "Back", "beginner3"),
+            Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
+            Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
+        ]
+    elif action == "static_priority":
+        buttons = [
+            Button(100, 100, 200, 50, "Back", "beginner4"),
+            Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
+        ]
+    elif action == "dynamic_priority":
+        buttons = [
+            Button(100, 100, 200, 50, "Back", "beginner4"),
+            Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
+        ]
     
     title = font.render("Tasks Manager", True, (255, 255, 255))
     screen.blit(title, title.get_rect(center=(1920 // 2, 100)))
@@ -68,6 +103,122 @@ def draw_homepage_2(screen):
             if page:
                 return page
     return "home2"
+
+def draw_beginner_page_1(screen):
+    button_width = 660
+    button_height = 136
+    button_spacing = 25
+    button_center_on_x = (screen.get_width() - button_width) // 2  # Centré horizontalement
+
+    buttons = [
+        Button(button_center_on_x, 200, button_width, button_height, "Based on Preemption", "beginner2"),
+        Button(button_center_on_x, 400, button_width, button_height, " Based on Timing Constraints", "beginner3"),
+        Button(button_center_on_x, 600, button_width, button_height, " Based on Priority Assignments", "beginner4"),
+        Button(100, 100, 200, 50, "Back", "home"),
+    ] 
+    
+    title = font.render("Tasks Manager", True, (255, 255, 255))
+    screen.blit(title, title.get_rect(center=(1920 // 2, 100)))
+    
+    for button in buttons:
+        button.draw(screen)
+
+    for event in pygame.event.get():
+        for button in buttons :
+            action = button.handle_event(event)
+            if action:
+                return action
+    return "beginner1"
+
+def draw_beginner_page_2(screen):
+    button_width = 660
+    button_height = 136
+    button_spacing = 25
+    button_center_on_x = (screen.get_width() - button_width) // 2  # Centré horizontalement
+
+    buttons = [
+        Button(button_center_on_x, 300, button_width, button_height, "Preemptive Scheduling", "preemption"),
+        Button(button_center_on_x, 500, button_width, button_height, "Non-Preemptive Scheduling", "non_preemption"),
+        Button(100, 100, 200, 50, "Back", "beginner1"),
+    ]
+    
+    title = font.render("Tasks Manager", True, (255, 255, 255))
+    screen.blit(title, title.get_rect(center=(1920 // 2, 100)))
+
+    text = Text(100, 200, 400, 50, "Choose the preemption type")
+    text.draw(screen)
+    
+    for button in buttons:
+        button.draw(screen)
+
+    for event in pygame.event.get():
+        for button in buttons :
+            action = button.handle_event(event)
+            if action:
+                if action == "beginner1":
+                    return (action, None)
+                return ("home2", action)
+    return ("beginner2", None)
+
+def draw_beginner_page_3(screen):
+    button_width = 660
+    button_height = 136
+    button_spacing = 25
+    button_center_on_x = (screen.get_width() - button_width) // 2  # Centré horizontalement
+
+    buttons = [
+        Button(button_center_on_x, 300, button_width, button_height, "Soft Real-Time Scheduling", "soft_real_time"),
+        Button(button_center_on_x, 500, button_width, button_height, "Hard Real-Time Scheduling", "hard_real_time"),
+        Button(100, 100, 200, 50, "Back", "beginner1"),
+    ]
+    
+    title = font.render("Tasks Manager", True, (255, 255, 255))
+    screen.blit(title, title.get_rect(center=(1920 // 2, 100)))
+
+    text = Text(100, 200, 400, 50, "Choose the timing constraints type")
+    text.draw(screen)
+    
+    for button in buttons:
+        button.draw(screen)
+
+    for event in pygame.event.get():
+        for button in buttons :
+            action = button.handle_event(event)
+            if action:
+                if action == "beginner1":
+                    return (action, None)
+                return ("home2", action)
+    return ("beginner3", None)
+
+def draw_beginner_page_4(screen):
+    button_width = 660
+    button_height = 136
+    button_spacing = 25
+    button_center_on_x = (screen.get_width() - button_width) // 2  # Centré horizontalement
+
+    buttons = [
+        Button(button_center_on_x, 300, button_width, button_height, "Static Priority Scheduling", "static_priority"),
+        Button(button_center_on_x, 500, button_width, button_height, "Dynamic Priority Scheduling", "dynamic_priority"),
+        Button(100, 100, 200, 50, "Back", "beginner1"),
+    ]
+    
+    title = font.render("Tasks Manager", True, (255, 255, 255))
+    screen.blit(title, title.get_rect(center=(1920 // 2, 100)))
+
+    text = Text(100, 200, 400, 50, "Choose the priority assignment type")
+    text.draw(screen)
+    
+    for button in buttons:
+        button.draw(screen)
+
+    for event in pygame.event.get():
+        for button in buttons :
+            action = button.handle_event(event)
+            if action:
+                if action == "beginner1":
+                    return (action, None)
+                return ("home2", action)
+    return ("beginner4", None)
 
 def draw_fcfs_page(screen):
     return draw_algorithm_page(screen, "FCFS")
