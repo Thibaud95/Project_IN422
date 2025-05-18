@@ -337,7 +337,7 @@ def compare_results(screen, original_algo, original_params, original_result):
                             limit = int(ask_for_parameter(screen, "Limit value for Rate Monotonic?"))
                             period_str = ask_for_parameter(screen, "Period value for Rate Monotonic?")
                             period = [int(x) for x in period_str.replace(',', ' ').split()]
-                            parameters = [param1[0], param1[1], param1[2], period, param1[-1]]
+                            parameters = [param1[0], param1[1], param1[2], period, limit]
                         else:
                             parameters = [param1[0], param1[1], param1[2], param1[-2], param1[-1]]
                         comparison_data['target_result'] = RM(*parameters)
@@ -559,7 +559,7 @@ def compare_results(screen, original_algo, original_params, original_result):
                             limit = int(ask_for_parameter(screen, "Limit value for Rate Monotonic?"))
                             period_str = ask_for_parameter(screen, "Period value for Rate Monotonic?")
                             period = [int(x) for x in period_str.replace(',', ' ').split()]
-                            parameters = [param1[0], param1[1], param1[2], period, param1[-1]]
+                            parameters = [param1[0], param1[1], param1[2], period, limit]
                         else:
                             parameters = [param1[0], param1[1], param1[2], param1[-2], param1[-1]]
                         comparison_data['target_result'] = RM(*parameters)
