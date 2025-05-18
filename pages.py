@@ -256,19 +256,19 @@ def compare_results(screen, original_algo, original_params, original_result):
         ("Earliest Deadline First", "edf")
     ]
     buttons = []
-    y = 150
+    y = 200
     for name, page in algorithms:
         original_algo_lower = original_algo.lower().replace(' ', '_')
         if page != original_algo_lower:
-            btn = Button(100, y, 600, 50, name, f"compare_{page}")
+            btn = Button((screen.get_width() - 660) // 2, y, 600, 50, name, f"compare_{page}")
             buttons.append(btn)
-            y += 70
+            y += 100
 
     back_btn = Button(100, 600, 200, 50, "Back", "home2")
 
     while True:
         screen.fill((30, 30, 30))
-        title = Text(100, 100, 400, 50, "Select Algorithm to Compare:")
+        title = Text((screen.get_width() - 660) // 2, 100, 400, 50, "Select Algorithm to Compare:")
         title.draw(screen)
 
         for event in pygame.event.get():
@@ -287,7 +287,39 @@ def compare_results(screen, original_algo, original_params, original_result):
                 if action and action.startswith("compare_"):
                     target_algo = action.split("_")[1]
                     comparison_data['target_algo'] = target_algo
-                    return target_algo  # Redirige vers la page de l'algorithme
+
+                    # Récupère les paramètres de base
+                    param1 = comparison_data['original_params']
+                    # Adapte les paramètres selon l'algo cible
+                    if target_algo == "fcfs":
+                        parameters = [param1[0], param1[1], param1[2]] 
+                        comparison_data['target_result'] = FCFS(*parameters)
+
+                    elif target_algo == "sjn":
+                        parameters = [param1[0], param1[1], param1[2]]
+                        comparison_data['target_result'] = SJN(*parameters)
+                    elif target_algo == "rr":
+                        if original_algo == "FCFS" or original_algo == "Shortest Job Next" :
+                            parameters = [param1[0],param1[1],param1[2],2]
+                        elif original_algo == "Rate Monotonic" or original_algo == "Earliest Deadline First":
+                            parameters = [param1[0], param1[1], param1[2],param1[-1]] 
+                        comparison_data['target_result'] = RR(*parameters)
+                    elif target_algo == "rm":
+                        if original_algo == "FCFS" or original_algo == "Shortest Job Next" :
+                            parameters = [param1[0],param1[1],param1[2], [20, 5, 10] , 2]
+                        elif original_algo == "Round Robin" or original_algo == "Earliest Deadline First":
+                            parameters = [param1[0], param1[1], param1[2], [20, 5, 10] , param1[-1]]
+                        comparison_data['target_result'] = RM(*parameters)
+                    elif target_algo == "edf":
+                        if original_algo == "FCFS" or original_algo == "Shortest Job Next" :
+                            parameters = [param1[0],param1[1],param1[2], [7, 4, 8] , [20, 5, 10] , 2]
+                        elif original_algo == "Round Robin" :
+                            parameters = [param1[0], param1[1], param1[2], [7, 4, 8], [20, 5, 10] , param1[-1]]
+                        elif original_algo == "Rate Monotonic":
+                            parameters = [param1[0], param1[1], param1[2], [7, 4, 8], param1[-2] , param1[-1]]
+                        comparison_data['target_result'] = EDF(*parameters)
+                    return "comparison"
+
 
         # Dessiner les éléments
         for btn in buttons:
@@ -302,33 +334,49 @@ def draw_comparison_page(screen):
         return "home2"
     
     # Récupérer les données
-    algo1 = comparison_data['original_algo']
+    algo1 = comparison_data['original_algo'].lower()
+    print(algo1)
     res1 = comparison_data['original_result']
-    algo2 = comparison_data['target_algo']
+    algo2 = comparison_data['target_algo'].lower()
     res2 = comparison_data['target_result']
-    
+
+    algo_name = {
+        'fcfs': "First Come First Serve",
+        'sjn': "Shortest Job Next",
+        'rr': "Round Robin",
+        'rm': "Rate Monotonic",
+        'edf': "Earliest Deadline First",
+        'first come first serve': "First Come First Serve",
+        'shortest job next': "Shortest Job Next",
+        'round robin': "Round Robin",
+        'rate monotonic': "Rate Monotonic",
+        'earliest deadline first': "Earliest Deadline First",
+    }
+    print(algo_name[algo1])
+    print(algo_name[algo2])
     # Configuration de l'affichage
     back_btn = Button(50, 50, 150, 50, "Back", "home2")
     tables_y = 150
-    cell_width = 150
-    cell_height = 30
+    cell_width = 250
+    cell_height = 50
     
     while True:
         screen.fill((30, 30, 30))
         
         # Titres
-        Text(200, 100, 400, 50, f"{algo1} vs {algo2}").draw(screen)
-        
+        Text((screen.get_width() - 660) // 2, 100, 400, 50, algo_name[algo1]).draw(screen)
+        Text((screen.get_width() - 660) // 2, 400, 400, 50, algo_name[algo2]).draw(screen)
+
         # Tableau pour l'algorithme original
-        draw_result_table(screen, algo1, res1, 100, tables_y, cell_width, cell_height)
+        draw_result_table(screen, algo1, res1, 400, tables_y, cell_width, cell_height)
         
         # Tableau pour l'algorithme cible
-        draw_result_table(screen, algo2, res2, 600, tables_y, cell_width, cell_height)
+        draw_result_table(screen, algo2, res2, 400, tables_y+300, cell_width, cell_height)
         
         # Comparaison des moyennes
         avg_y = tables_y + (len(res1['Completion Time']) + 2) * cell_height
-        draw_avg_comparison(screen, algo1, res1, algo2, res2, 100, avg_y)
-        
+        draw_avg_comparison(screen, algo_name[algo1], res1, algo_name[algo2], res2, (screen.get_width() - 660) // 2, avg_y)
+
         # Bouton de retour
         back_btn.draw(screen)
         
@@ -347,7 +395,7 @@ def draw_comparison_page(screen):
 
 def draw_result_table(screen, algo_name, result, x, y, cell_w, cell_h):
     # En-têtes
- columns = ["Process", "CT", "TAT", "WT"]
+ columns = ["Process", "Completion Time", "Turnaround Time", "Waiting Time"]
  for i, col in enumerate(columns):
      Text(x + i*cell_w, y, cell_w, cell_h, col).draw(screen)
  
@@ -367,16 +415,16 @@ def draw_avg_comparison(screen, algo1, res1, algo2, res2, x, y):
     avg_wt2 = res2['Average Waiting Time']
     
     # Affichage des moyennes
-    Text(x, y, 300, 30, f"{algo1} Avg TAT: {avg_tat1:.2f}").draw(screen)
-    Text(x, y + 30, 300, 30, f"{algo1} Avg WT: {avg_wt1:.2f}").draw(screen)
-    Text(x, y + 60, 300, 30, f"{algo2} Avg TAT: {avg_tat2:.2f}").draw(screen)
-    Text(x, y + 90, 300, 30, f"{algo2} Avg WT: {avg_wt2:.2f}").draw(screen)
-    
+    Text(x, y, 300, 30, f"Average Turnaround Time: {avg_tat1:.2f}").draw(screen)
+    Text(x+200, y, 300, 30, f"Average Waiting Time: {avg_wt1:.2f}").draw(screen)
+    Text(x, y+500, 300, 30, f"Average Turnaround Time: {avg_tat2:.2f}").draw(screen)
+    Text(x + 200, y + 500, 300, 30, f"Average Waiting Time: {avg_wt2:.2f}").draw(screen)
+
     # Déterminer le meilleur algorithme
     tat_winner = algo1 if avg_tat1 < avg_tat2 else algo2
     wt_winner = algo1 if avg_wt1 < avg_wt2 else algo2
-    Text(x, y + 120, 400, 30, f"Best TAT: {tat_winner}").draw(screen)
-    Text(x, y + 150, 400, 30, f"Best WT: {wt_winner}").draw(screen)
+    Text(x, y + 520, 400, 30, f"Best Turnaround Time: {tat_winner}").draw(screen)
+    Text(x + 200, y + 520, 400, 30, f"Best Waiting Time: {wt_winner}").draw(screen)
 
 
 def draw_algorithm_page(screen, algo_name):
@@ -532,32 +580,45 @@ def draw_algorithm_page(screen, algo_name):
                     if arrival_time[i] != "" and burst_time[i] != "":
                         process_list = []
                         if algo_name == "FCFS" or algo_name=="Shortest Job Next":                         
+                            process_list = []
+                            arrival_times = []
+                            burst_times = []                     
                             for i in range(len(arrival_time)):
-                                process_list.append(("P"+str(i+1),int(arrival_time[i]), int(burst_time[i])))
+                                process_list.append("P"+str(i+1))
+                                arrival_times.append(int(arrival_time[i]))
+                                burst_times.append(int(burst_time[i]))
                             if algo_name == "FCFS":
-                                parameters = [process_list]
+                                parameters = [process_list, arrival_times, burst_times]
                                 result = FCFS(*parameters)
+                                if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
                             elif algo_name == "Shortest Job Next":
-                                parameters = [process_list]
+                                parameters = [process_list, arrival_times, burst_times]
                                 result = SJN(*parameters)
+                                if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
                             print(result)
-                            if comparison_data:
-                                comparison_data['target_result'] = result
-                                return "comparison" 
                             validate_button.visibility = False
                             compare_button.visibility = True
                             table_data = [["Process", "Arrival Time", "Burst Time","Completion Time", "Turnaround Time", "Waiting Time"]]
                             for i in range(1, num_processes + 1):
                                 table_data.append([f"P{i}", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
                         elif algo_name == "Round Robin":                         
+                            process_list = []
+                            arrival_times = []
+                            burst_times = []                      
                             for i in range(len(arrival_time)):
-                                process_list.append(("P"+str(i+1),int(arrival_time[i]), int(burst_time[i])))
-                            parameters = [process_list, quantum_limit_value]
+                                process_list.append("P"+str(i+1))
+                                arrival_times.append(int(arrival_time[i]))
+                                burst_times.append(int(burst_time[i]))
+                            parameters = [process_list, arrival_times, burst_times, quantum_limit_value]
                             result = RR(*parameters)
+                            if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
                             print(result)
-                            if comparison_data:
-                                comparison_data['target_result'] = result
-                                return "comparison" 
                             compare_button.visibility = True
                             validate_button.visibility = False
                             quantum_limit_button.visibility = False
@@ -577,10 +638,10 @@ def draw_algorithm_page(screen, algo_name):
                                 periods.append(int(period[i]))
                             parameters = [process_list,arrival_times, burst_times, periods, quantum_limit_value]
                             result = RM(*parameters)
+                            if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
                             print(result)
-                            if comparison_data:
-                                comparison_data['target_result'] = result
-                                return "comparison"
                             compare_button.visibility = True 
                             validate_button.visibility = False
                             quantum_limit_button.visibility = False
@@ -602,10 +663,10 @@ def draw_algorithm_page(screen, algo_name):
                                 periods.append(int(period[i]))
                             parameters = [process_list,arrival_times, burst_times, deadlines, periods, quantum_limit_value]
                             result = EDF(*parameters)
+                            if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
                             print(result)
-                            if comparison_data:
-                                comparison_data['target_result'] = result
-                                return "comparison"
                             compare_button.visibility = True 
                             validate_button.visibility = False
                             quantum_limit_button.visibility = False

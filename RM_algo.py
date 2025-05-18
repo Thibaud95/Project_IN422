@@ -71,14 +71,18 @@ def RM(processes, arrival_times, burst_times, periods, total_time):
     print("Waiting Time:", WT)
     print("Average TAT:", avg_TAT)
     print("Average WT:", avg_WT)
-
+    completion_time = CT
+    turnaround_time = TAT
+    waiting_time = WT
+    avg_tat = avg_TAT
+    avg_wt = avg_WT
     return {
-        "Schedule": schedule,
-        "Completion Time": CT,
-        "Turnaround Time": TAT,
-        "Waiting Time": WT,
-        "Average TAT": avg_TAT,
-        "Average WT": avg_WT
+        "Completion Time": completion_time,
+        "Turnaround Time": turnaround_time,
+        "Waiting Time": waiting_time,
+        "Average Turnaround Time": avg_tat,
+        "Average Waiting Time": avg_wt,
+        "Schedule": schedule
     }
 
 

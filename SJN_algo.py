@@ -1,6 +1,7 @@
-def SJN(processes):
+def SJN(processes, arrival_times, burst_times):
+    processes = list(zip(processes, arrival_times, burst_times))
     processes.sort(key=lambda x: (x[1], x[2]))  # Trier par Arrival Time (AT), puis par Burst Time (BT)
-    
+
     time = 0
     schedule = []
     completion_time = {}
@@ -48,7 +49,9 @@ def SJN(processes):
     }
 
 # Exemple d'utilisation
-process_list = [("P1", 0, 7), ("P2", 2, 4), ("P3", 4, 1), ("P4", 5, 4)]
-result = SJN(process_list)
+processes = ["P1", "P2", "P3","P4"]
+arrival_times = [0, 2, 4, 5]
+burst_times = [7, 4, 1, 4]
+result = SJN(processes, arrival_times, burst_times)
 print(result)
 # suppose Output: {'Completion Time': {'P1': 11, 'P2': 15, 'P3': 16, 'P4': 20}, 'Turnaround Time': {'P1': 11, 'P2': 13, 'P3': 12, 'P4': 15}, 'Waiting Time': {'P1': 4, 'P2': 9, 'P3': 11, 'P4': 11}, 'Average Turnaround Time': 12.75, 'Average Waiting Time': 8.75, 'Schedule': ['P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P2', 'P2', 'P2', 'P2', 'P3', 'P4', 'P4', 'P4', 'P4']}

@@ -1,8 +1,9 @@
-def RR(processes, quantum):
+def RR(processes, arrival_times, burst_times, quantum):
     from collections import deque
 
+    processes = list(zip(processes, arrival_times, burst_times))
     processes.sort(key=lambda x: x[1])  # Trier par Arrival Time
-    
+
     n = len(processes)
     queue = deque()
     time = 0
@@ -71,8 +72,10 @@ def RR(processes, quantum):
     }
 
 # Exemple d'utilisation
-process_list = [("P1", 0, 5), ("P2", 1, 3), ("P3", 2, 8)]
+processes = ["P1", "P2", "P3"]
+arrival_times = [0, 1, 2]
+burst_times = [5, 3, 8]
 quantum_time = 4
-result = RR(process_list, quantum_time)
+result = RR(processes, arrival_times, burst_times, quantum_time)
 print(result)
 # suppose Output: {'Completion Time': {'P1': 5, 'P2': 8, 'P3': 16}, 'Turnaround Time': {'P1': 5, 'P2': 7, 'P3': 14}, 'Waiting Time': {'P1': 0, 'P2': 4, 'P3': 6}, 'Average Turnaround Time': 8.666666666666666, 'Average Waiting Time': 3.3333333333333335, 'Schedule': ['P1', 'P1', 'P2', 'P2', 'P3', 'P3', 'P3', 'P1']}

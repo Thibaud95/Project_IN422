@@ -1,4 +1,5 @@
-def FCFS(processes):
+def FCFS(processes, arrival_times, burst_times):
+    processes = list(zip(processes, arrival_times, burst_times))
     processes.sort(key=lambda x: x[1])  # Trier selon l'Arrival Time (AT)
     
     time = 0
@@ -38,7 +39,10 @@ def FCFS(processes):
     }
 
 # Exemple d'utilisation
-process_list = [("P1", 0, 5), ("P2", 1, 3), ("P3", 2, 8)]
-result = FCFS(process_list)
+processes = ["P1", "P2", "P3"]
+arrival_times = [0, 1, 2]
+burst_times = [5, 3, 8]
+
+result = FCFS(processes, arrival_times, burst_times)
 print(result)
 # suppose Output: {'Completion Time': {'P1': 5, 'P2': 8, 'P3': 16}, 'Turnaround Time': {'P1': 5, 'P2': 7, 'P3': 14}, 'Waiting Time': {'P1': 0, 'P2': 4, 'P3': 6}, 'Average Turnaround Time': 8.666666666666666, 'Average Waiting Time': 3.3333333333333335, 'Schedule': ['P1', 'P2', 'P2', 'P2', 'P1
