@@ -10,7 +10,8 @@ from SJN_algo import SJN
 
 
 font = pygame.font.Font(None, 21)
-
+# Variable globale pour stocker les données de comparaison
+comparison_data = None
 
 def draw_homepage_1(screen):
     button_width = 660
@@ -235,13 +236,206 @@ def draw_edf_page(screen):
 def draw_sjn_page(screen):
     return draw_algorithm_page(screen, "Shortest Job Next")
 
+def compare_results(screen, original_algo, original_params, original_result):
+    global comparison_data
+    # Stocker les données originales pour comparaison
+    comparison_data = {
+        'original_algo': original_algo,
+        'original_params': original_params,
+        'original_result': original_result,
+        'target_algo': None,
+        'target_result': None
+    }
+    
+    # Créer les boutons pour les autres algorithmes
+    algorithms = [
+        ("First Come First Serve", "fcfs"),
+        ("Shortest Job Next", "sjn"),
+        ("Round Robin", "rr"),
+        ("Rate Monotonic", "rm"),
+        ("Earliest Deadline First", "edf")
+    ]
+    buttons = []
+    y = 200
+    for name, page in algorithms:
+        original_algo_lower = original_algo.lower().replace(' ', '_')
+        if page != original_algo_lower:
+            btn = Button((screen.get_width() - 660) // 2, y, 600, 50, name, f"compare_{page}")
+            buttons.append(btn)
+            y += 100
+
+    back_btn = Button(100, 600, 200, 50, "Back", "home2")
+
+    while True:
+        screen.fill((30, 30, 30))
+        title = Text((screen.get_width() - 660) // 2, 100, 400, 50, "Select Algorithm to Compare:")
+        title.draw(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            
+            # Gestion des boutons
+            action = back_btn.handle_event(event)
+            if action:
+                comparison_data = None
+                return action
+            
+            for btn in buttons:
+                action = btn.handle_event(event)
+                if action and action.startswith("compare_"):
+                    target_algo = action.split("_")[1]
+                    comparison_data['target_algo'] = target_algo
+
+                    # Récupère les paramètres de base
+                    param1 = comparison_data['original_params']
+                    # Adapte les paramètres selon l'algo cible
+                    if target_algo == "fcfs":
+                        parameters = [param1[0], param1[1], param1[2]] 
+                        comparison_data['target_result'] = FCFS(*parameters)
+
+                    elif target_algo == "sjn":
+                        parameters = [param1[0], param1[1], param1[2]]
+                        comparison_data['target_result'] = SJN(*parameters)
+                    elif target_algo == "rr":
+                        if original_algo == "FCFS" or original_algo == "Shortest Job Next" :
+                            parameters = [param1[0],param1[1],param1[2],2]
+                        elif original_algo == "Rate Monotonic" or original_algo == "Earliest Deadline First":
+                            parameters = [param1[0], param1[1], param1[2],param1[-1]] 
+                        comparison_data['target_result'] = RR(*parameters)
+                    elif target_algo == "rm":
+                        if original_algo == "FCFS" or original_algo == "Shortest Job Next" :
+                            parameters = [param1[0],param1[1],param1[2], [20, 5, 10] , 2]
+                        elif original_algo == "Round Robin" or original_algo == "Earliest Deadline First":
+                            parameters = [param1[0], param1[1], param1[2], [20, 5, 10] , param1[-1]]
+                        comparison_data['target_result'] = RM(*parameters)
+                    elif target_algo == "edf":
+                        if original_algo == "FCFS" or original_algo == "Shortest Job Next" :
+                            parameters = [param1[0],param1[1],param1[2], [7, 4, 8] , [20, 5, 10] , 2]
+                        elif original_algo == "Round Robin" :
+                            parameters = [param1[0], param1[1], param1[2], [7, 4, 8], [20, 5, 10] , param1[-1]]
+                        elif original_algo == "Rate Monotonic":
+                            parameters = [param1[0], param1[1], param1[2], [7, 4, 8], param1[-2] , param1[-1]]
+                        comparison_data['target_result'] = EDF(*parameters)
+                    return "comparison"
+
+
+        # Dessiner les éléments
+        for btn in buttons:
+            btn.draw(screen)
+        back_btn.draw(screen)
+        pygame.display.flip()
+        pygame.time.Clock().tick(30)
+
+def draw_comparison_page(screen):
+    global comparison_data
+    if not comparison_data or not comparison_data['target_result']:
+        return "home2"
+    
+    # Récupérer les données
+    algo1 = comparison_data['original_algo'].lower()
+    print(algo1)
+    res1 = comparison_data['original_result']
+    algo2 = comparison_data['target_algo'].lower()
+    res2 = comparison_data['target_result']
+
+    algo_name = {
+        'fcfs': "First Come First Serve",
+        'sjn': "Shortest Job Next",
+        'rr': "Round Robin",
+        'rm': "Rate Monotonic",
+        'edf': "Earliest Deadline First",
+        'first come first serve': "First Come First Serve",
+        'shortest job next': "Shortest Job Next",
+        'round robin': "Round Robin",
+        'rate monotonic': "Rate Monotonic",
+        'earliest deadline first': "Earliest Deadline First",
+    }
+    print(algo_name[algo1])
+    print(algo_name[algo2])
+    # Configuration de l'affichage
+    back_btn = Button(50, 50, 150, 50, "Back", "home2")
+    tables_y = 150
+    cell_width = 250
+    cell_height = 50
+    
+    while True:
+        screen.fill((30, 30, 30))
+        
+        # Titres
+        Text((screen.get_width() - 660) // 2, 100, 400, 50, algo_name[algo1]).draw(screen)
+        Text((screen.get_width() - 660) // 2, 400, 400, 50, algo_name[algo2]).draw(screen)
+
+        # Tableau pour l'algorithme original
+        draw_result_table(screen, algo1, res1, 400, tables_y, cell_width, cell_height)
+        
+        # Tableau pour l'algorithme cible
+        draw_result_table(screen, algo2, res2, 400, tables_y+300, cell_width, cell_height)
+        
+        # Comparaison des moyennes
+        avg_y = tables_y + (len(res1['Completion Time']) + 2) * cell_height
+        draw_avg_comparison(screen, algo_name[algo1], res1, algo_name[algo2], res2, (screen.get_width() - 660) // 2, avg_y)
+
+        # Bouton de retour
+        back_btn.draw(screen)
+        
+        # Gestion des événements
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            action = back_btn.handle_event(event)
+            if action:
+                comparison_data = None
+                return action
+        
+        pygame.display.flip()
+        pygame.time.Clock().tick(30)
+
+def draw_result_table(screen, algo_name, result, x, y, cell_w, cell_h):
+    # En-têtes
+ columns = ["Process", "Completion Time", "Turnaround Time", "Waiting Time"]
+ for i, col in enumerate(columns):
+     Text(x + i*cell_w, y, cell_w, cell_h, col).draw(screen)
+ 
+ # Données
+ for row, (proc, ct) in enumerate(result['Completion Time'].items()):
+     tat = result['Turnaround Time'][proc]
+     wt = result['Waiting Time'][proc]
+     Text(x, y + (row+1)*cell_h, cell_w, cell_h, proc).draw(screen)
+     Text(x + cell_w, y + (row+1)*cell_h, cell_w, cell_h, str(ct)).draw(screen)
+     Text(x + 2*cell_w, y + (row+1)*cell_h, cell_w, cell_h, str(tat)).draw(screen)
+     Text(x + 3*cell_w, y + (row+1)*cell_h, cell_w, cell_h, str(wt)).draw(screen)
+
+def draw_avg_comparison(screen, algo1, res1, algo2, res2, x, y):
+    avg_tat1 = res1['Average Turnaround Time']
+    avg_wt1 = res1['Average Waiting Time']
+    avg_tat2 = res2['Average Turnaround Time']
+    avg_wt2 = res2['Average Waiting Time']
+    
+    # Affichage des moyennes
+    Text(x, y, 300, 30, f"Average Turnaround Time: {avg_tat1:.2f}").draw(screen)
+    Text(x+200, y, 300, 30, f"Average Waiting Time: {avg_wt1:.2f}").draw(screen)
+    Text(x, y+500, 300, 30, f"Average Turnaround Time: {avg_tat2:.2f}").draw(screen)
+    Text(x + 200, y + 500, 300, 30, f"Average Waiting Time: {avg_wt2:.2f}").draw(screen)
+
+    # Déterminer le meilleur algorithme
+    tat_winner = algo1 if avg_tat1 < avg_tat2 else algo2
+    wt_winner = algo1 if avg_wt1 < avg_wt2 else algo2
+    Text(x, y + 520, 400, 30, f"Best Turnaround Time: {tat_winner}").draw(screen)
+    Text(x + 200, y + 520, 400, 30, f"Best Waiting Time: {wt_winner}").draw(screen)
+
 
 def draw_algorithm_page(screen, algo_name):
+    global comparison_data
     # Bouton "Retour"
     back_button = Button(50, 50, 150, 50, "Back", "home2")
     add_button = Button(screen.get_width() - 250, 100, 200, 50, "Add Processes", "add_processes")
     validate_button = Button(screen.get_width() - 250, 200, 200, 50, "Validate", "validate")
     validate_button.visibility = False
+    compare_button = Button(screen.get_width() - 250, 200, 200, 50, "Compare", "compare")
+    compare_button.visibility = False
     value_text = "Init"
     if algo_name == "Round Robin":
         value_text = "Set quantum"
@@ -374,6 +568,11 @@ def draw_algorithm_page(screen, algo_name):
                 except ValueError:
                     print("Error: Please enter a valid integer.")
 
+            # Gestion du bouton "Compare"
+            if compare_button.visibility:
+                action = compare_button.handle_event(event)
+                if action == "compare":
+                    return compare_results(screen, algo_name, parameters, result)
             # Gestion du bouton "Validate"
             action = validate_button.handle_event(event)
             if action == "validate":
@@ -381,22 +580,46 @@ def draw_algorithm_page(screen, algo_name):
                     if arrival_time[i] != "" and burst_time[i] != "":
                         process_list = []
                         if algo_name == "FCFS" or algo_name=="Shortest Job Next":                         
+                            process_list = []
+                            arrival_times = []
+                            burst_times = []                     
                             for i in range(len(arrival_time)):
-                                process_list.append(("P"+str(i+1),int(arrival_time[i]), int(burst_time[i])))
+                                process_list.append("P"+str(i+1))
+                                arrival_times.append(int(arrival_time[i]))
+                                burst_times.append(int(burst_time[i]))
                             if algo_name == "FCFS":
-                                result = FCFS(process_list)
+                                parameters = [process_list, arrival_times, burst_times]
+                                result = FCFS(*parameters)
+                                if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
                             elif algo_name == "Shortest Job Next":
-                                result = SJN(process_list)
-                            print(result) 
+                                parameters = [process_list, arrival_times, burst_times]
+                                result = SJN(*parameters)
+                                if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
+                            print(result)
                             validate_button.visibility = False
+                            compare_button.visibility = True
                             table_data = [["Process", "Arrival Time", "Burst Time","Completion Time", "Turnaround Time", "Waiting Time"]]
                             for i in range(1, num_processes + 1):
                                 table_data.append([f"P{i}", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
                         elif algo_name == "Round Robin":                         
+                            process_list = []
+                            arrival_times = []
+                            burst_times = []                      
                             for i in range(len(arrival_time)):
-                                process_list.append(("P"+str(i+1),int(arrival_time[i]), int(burst_time[i])))
-                            result = RR(process_list,quantum_limit_value)
-                            print(result) 
+                                process_list.append("P"+str(i+1))
+                                arrival_times.append(int(arrival_time[i]))
+                                burst_times.append(int(burst_time[i]))
+                            parameters = [process_list, arrival_times, burst_times, quantum_limit_value]
+                            result = RR(*parameters)
+                            if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
+                            print(result)
+                            compare_button.visibility = True
                             validate_button.visibility = False
                             quantum_limit_button.visibility = False
                             input_box.visibility = False
@@ -413,8 +636,13 @@ def draw_algorithm_page(screen, algo_name):
                                 arrival_times.append(int(arrival_time[i]))
                                 burst_times.append(int(burst_time[i]))
                                 periods.append(int(period[i]))
-                            result = RM(process_list,arrival_times, burst_times, periods, quantum_limit_value)
-                            print(result) 
+                            parameters = [process_list,arrival_times, burst_times, periods, quantum_limit_value]
+                            result = RM(*parameters)
+                            if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
+                            print(result)
+                            compare_button.visibility = True 
                             validate_button.visibility = False
                             quantum_limit_button.visibility = False
                             input_box.visibility = False
@@ -433,11 +661,17 @@ def draw_algorithm_page(screen, algo_name):
                                 burst_times.append(int(burst_time[i]))
                                 deadlines.append(int(deadline[i]))
                                 periods.append(int(period[i]))
-                            result = EDF(process_list,arrival_times, burst_times, deadlines, periods, quantum_limit_value)
-                            print(result) 
+                            parameters = [process_list,arrival_times, burst_times, deadlines, periods, quantum_limit_value]
+                            result = EDF(*parameters)
+                            if comparison_data is not None :
+                                    comparison_data['original_params'] = parameters
+                                    comparison_data['original_result'] = result
+                            print(result)
+                            compare_button.visibility = True 
                             validate_button.visibility = False
                             quantum_limit_button.visibility = False
                             input_box.visibility = False
+                            
                             table_data = [["Process", "Arrival Time", "Burst Time", "Period", "Completion Time", "Turnaround Time", "Waiting Time"]]
                             for i in range(1, num_processes + 1):
                                 table_data.append([f"P{i}", "", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
@@ -448,11 +682,13 @@ def draw_algorithm_page(screen, algo_name):
                     else : print("Enter the parameters before validate")
 
 
+
         # Dessiner les boutons
         back_button.draw(screen)
         add_button.draw(screen)
 
         validate_button.draw(screen)
+        compare_button.draw(screen)
         quantum_limit_button.draw(screen)
 
 
