@@ -236,6 +236,34 @@ def draw_edf_page(screen):
 def draw_sjn_page(screen):
     return draw_algorithm_page(screen, "Shortest Job Next")
 
+def ask_for_parameter(screen, label):
+    input_box = InputBox(screen.get_width() // 2 - 100, screen.get_height() // 2, 200, 50)
+    font = pygame.font.Font(None, 36)
+    validate_button = Button(screen.get_width() // 2 - 100, screen.get_height() // 2 + 70, 200, 50, "Validate", "validate")
+    while True:
+        screen.fill((30, 30, 30))
+        text = font.render(label, True, (255, 255, 255))
+        screen.blit(text, (screen.get_width() // 2 - text.get_width() // 2, screen.get_height() // 2 - 60))
+        input_box.draw(screen)
+        validate_button.draw(screen)
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            input_box.handle_event(event)
+            action = validate_button.handle_event(event)
+            if action == "validate":
+                try:
+                    return input_box.text
+                except ValueError:
+                    pass  # Ignore invalid input, let user retry
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                try:
+                    return input_box.text
+                except ValueError:
+                    pass  # Ignore invalid input, let user retry
+
 def compare_results(screen, original_algo, original_params, original_result):
     global comparison_data
     # Stocker les données originales pour comparaison
@@ -294,29 +322,36 @@ def compare_results(screen, original_algo, original_params, original_result):
                     if target_algo == "fcfs":
                         parameters = [param1[0], param1[1], param1[2]] 
                         comparison_data['target_result'] = FCFS(*parameters)
-
                     elif target_algo == "sjn":
                         parameters = [param1[0], param1[1], param1[2]]
                         comparison_data['target_result'] = SJN(*parameters)
                     elif target_algo == "rr":
-                        if original_algo == "FCFS" or original_algo == "Shortest Job Next" :
-                            parameters = [param1[0],param1[1],param1[2],2]
-                        elif original_algo == "Rate Monotonic" or original_algo == "Earliest Deadline First":
-                            parameters = [param1[0], param1[1], param1[2],param1[-1]] 
+                        if len(param1) < 4 :
+                            quantum = int(ask_for_parameter(screen, "Quantum value for Round Robin?"))
+                            parameters = [param1[0], param1[1], param1[2], quantum]
+                        else:
+                            parameters = [param1[0], param1[1], param1[2], param1[-1]]
                         comparison_data['target_result'] = RR(*parameters)
                     elif target_algo == "rm":
-                        if original_algo == "FCFS" or original_algo == "Shortest Job Next" :
-                            parameters = [param1[0],param1[1],param1[2], [20, 5, 10] , 2]
-                        elif original_algo == "Round Robin" or original_algo == "Earliest Deadline First":
-                            parameters = [param1[0], param1[1], param1[2], [20, 5, 10] , param1[-1]]
+                        if len(param1) < 5:
+                            limit = int(ask_for_parameter(screen, "Limit value for Rate Monotonic?"))
+                            period_str = ask_for_parameter(screen, "Period value for Rate Monotonic?")
+                            period = [int(x) for x in period_str.replace(',', ' ').split()]
+                            parameters = [param1[0], param1[1], param1[2], period, param1[-1]]
+                        else:
+                            parameters = [param1[0], param1[1], param1[2], param1[-2], param1[-1]]
                         comparison_data['target_result'] = RM(*parameters)
                     elif target_algo == "edf":
-                        if original_algo == "FCFS" or original_algo == "Shortest Job Next" :
-                            parameters = [param1[0],param1[1],param1[2], [7, 4, 8] , [20, 5, 10] , 2]
-                        elif original_algo == "Round Robin" :
-                            parameters = [param1[0], param1[1], param1[2], [7, 4, 8], [20, 5, 10] , param1[-1]]
-                        elif original_algo == "Rate Monotonic":
-                            parameters = [param1[0], param1[1], param1[2], [7, 4, 8], param1[-2] , param1[-1]]
+                        if len(param1) < 5:
+                            limit = int(ask_for_parameter(screen, "Limit value for Earliest Deadline First?"))
+                            period_str = ask_for_parameter(screen, "Period value for Earliest Deadline First?")
+                            period = [int(x) for x in period_str.replace(',', ' ').split()]
+                        else : 
+                            limit = param1[-1]
+                            period = param1[-2]
+                        deadlines_str = ask_for_parameter(screen, "Deadline value for Earliest Deadline First?")
+                        deadlines = [int(x) for x in deadlines_str.replace(',', ' ').split()]
+                        parameters = [param1[0], param1[1], param1[2], deadlines, period, limit]
                         comparison_data['target_result'] = EDF(*parameters)
                     return "comparison"
 
@@ -335,7 +370,6 @@ def draw_comparison_page(screen):
     
     # Récupérer les données
     algo1 = comparison_data['original_algo'].lower()
-    print(algo1)
     res1 = comparison_data['original_result']
     algo2 = comparison_data['target_algo'].lower()
     res2 = comparison_data['target_result']
@@ -352,8 +386,6 @@ def draw_comparison_page(screen):
         'rate monotonic': "Rate Monotonic",
         'earliest deadline first': "Earliest Deadline First",
     }
-    print(algo_name[algo1])
-    print(algo_name[algo2])
     # Configuration de l'affichage
     back_btn = Button(50, 50, 150, 50, "Back", "home2")
     tables_y = 150
