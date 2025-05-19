@@ -104,8 +104,8 @@ def RM(processes, arrival_times, execution_times, periods, total_time):
     return {
         "CPU Utilization": utilization,
         "Utilization Bound": bound,
-        "Response Times": response_times,
-        "Waiting Times": waiting_times,
+        "Response Time": response_times,
+        "Waiting Time": waiting_times,
         "Average Waiting Time": avg_wt,
         "Schedule": schedule
     }
@@ -121,96 +121,3 @@ total_time = 20
 
 RM(processes, arrival_times, execution_times, periods, total_time)
 # suppose Output: {'Schedule': ['P1','P2','P2','P3','P1','P2','P2','P3','P1','P3','P2','P2','P1','P3','P3','P2','P1','P2','P3','none']
-
-# 'Completion Time': {'P1': 20, 'P2': 20, 'P3': 20}, 'Turnaround Time': {'P1': 20, 'P2': 20, 'P3': 20}, 'Waiting Time': {'P1': 19, 'P2': 18, 'P3': 17}, 'Average TAT': 20.0, 'Average WT': 18.0}
-
-def RM_2(processes, arrival_times, burst_times, periods, total_time):
-    n = len(processes)
-    schedule = []
-    
-    # 1. Vérification de la schedulabilité avec la formule d'utilisation CPU
-    utilization = sum(burst_times[i] / periods[i] for i in range(n))
-    bound = n * (2 ** (1/n) - 1)
-    schedulable = utilization <= bound
-    
-    print(f"CPU Utilization: {utilization:.3f}")
-    print(f"Utilization Bound: {bound:.3f}")
-    print(f"Schedulable according to UB test: {schedulable}")
-    
-    # 2. Analyse de temps de réponse pour chaque tâche
-    response_times = {p: [] for p in processes}
-    waiting_times = {p: [] for p in processes}
-    
-    # Pour chaque tâche, calculer R_i avec la formule itérative
-    for i in range(n):
-        R_prev = 0
-        R_current = burst_times[i]  # Initialisation: R_i = C_i
-        
-        while True:
-            interference = 0
-            for j in range(i):  # Seulement les tâches de priorité plus haute
-                interference += (R_current // periods[j]) * burst_times[j]
-            
-            R_next = burst_times[i] + interference
-            
-            if R_next == R_current:  # Convergence
-                break
-            if R_next > periods[i]:  # Dépasse la période -> non schedulable
-                break
-                
-            R_current = R_next
-        
-        response_times[processes[i]] = R_current
-        waiting_times[processes[i]] = R_current - burst_times[i]
-    
-    print("\nResponse Time Analysis:")
-    for i in range(n):
-        print(f"{processes[i]}: R_i = {response_times[processes[i]]}, W_i = {waiting_times[processes[i]]}", 
-              f"- {'Schedulable' if response_times[processes[i]] <= periods[i] else 'Not Schedulable'}")
-    
-    # 3. Simulation de l'ordonnancement (identique à avant)
-    next_arrival = [arrival_times[i] for i in range(n)]
-    remaining_bt = [0] * n
-    priorities = sorted(range(n), key=lambda i: periods[i])
-    
-    for time in range(total_time):
-        # Mise à jour des arrivées
-        for i in range(n):
-            if time == next_arrival[i]:
-                remaining_bt[i] += burst_times[i]
-                next_arrival[i] += periods[i]
-        
-        # Sélection de la tâche
-        current_task = None
-        for i in priorities:
-            if remaining_bt[i] > 0:
-                current_task = i
-                break
-        
-        if current_task is not None:
-            remaining_bt[current_task] -= 1
-            schedule.append(processes[current_task])
-        else:
-            schedule.append("none")
-    
-    print("\nExecution Schedule:")
-    print(schedule)
-    
-    return {
-        "CPU Utilization": utilization,
-        "Utilization Bound": bound,
-        "Schedulable (UB Test)": schedulable,
-        "Response Times": response_times,
-        "Waiting Times": waiting_times,
-        "Schedule": schedule
-    }
-
-
-# Exemple d'utilisation
-processes = ["P1", "P2", "P3"]
-arrival_times = [0, 0, 0]
-burst_times = [1, 2, 3]
-periods = [4, 5, 10]
-total_time = 20
-
-#RM(processes, arrival_times, burst_times, periods, total_time)

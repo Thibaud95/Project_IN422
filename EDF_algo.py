@@ -101,8 +101,8 @@ def EDF(processes, arrival_times, execution_times, deadlines, periods, time_limi
     return {
         "CPU Utilization": utilization,
         "Utilization Bound": bound,
-        "Response Times": response_times,
-        "Waiting Times": waiting_times,
+        "Response Time": response_times,
+        "Waiting Time": waiting_times,
         "Average Waiting Time": avg_wt,
         "Schedule": timeline
     }
