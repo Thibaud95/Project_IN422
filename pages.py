@@ -366,11 +366,8 @@ def compare_results(screen, original_algo, original_params, original_result):
                         parameters = [param1[0], param1[1], param1[2]]
                         comparison_data['target_result'] = SJN(*parameters)
                     elif target_algo == "rr":
-                        if len(param1) < 4 :
-                            quantum = int(ask_for_parameter(screen, "Quantum value for Round Robin?"))
-                            parameters = [param1[0], param1[1], param1[2], quantum]
-                        else:
-                            parameters = [param1[0], param1[1], param1[2], param1[-1]]
+                        quantum = int(ask_for_parameter(screen, "Quantum value for Round Robin?"))
+                        parameters = [param1[0], param1[1], param1[2], quantum]
                         comparison_data['target_result'] = RR(*parameters)
                     elif target_algo == "rm":
                         if len(param1) < 5:
@@ -506,7 +503,7 @@ def draw_result_table(screen, algo_name, result, x, y, cell_w, cell_h):
 def draw_avg_comparison(screen, algo1, res1, algo2, res2, x, y):
     # Déterminer les clés à utiliser selon l'algo
     def get_keys(algo):
-        if algo in ["Rate Monotonic", "Earliest Deadline First"]:
+        if algo in ["Rate Monotonic", "Earliest Deadline First", "rate monotonic", "earliest deadline first", "rm", "edf"]:
             return "Response Time", "Waiting Time"
         else:
             return "Turnaround Time", "Waiting Time"
