@@ -907,6 +907,7 @@ def draw_algorithm_page(screen, algo_name):
     simulation_active = False
     simulation_step = 0
     last_update_time = pygame.time.get_ticks()
+    error_message = ""
     ##########------------------------------##########
 
     # Boucle interne pour gérer les événements
@@ -934,6 +935,12 @@ def draw_algorithm_page(screen, algo_name):
             if action == "add_processes":
                 try:
                     num_processes = int(input_box.text)
+                    
+                    if num_processes > 5:
+                        print("Erreur : Le nombre maximum de processus est 5.")
+                        error_message = "Maximum 5 processes allowed."
+                        continue  # Ignore le reste de la boucle si dépassement
+
                     # Réinitialiser le tableau et les InputBox
                     arrival_time_boxes = []
                     burst_time_boxes = []
@@ -1016,120 +1023,135 @@ def draw_algorithm_page(screen, algo_name):
             # Gestion du bouton "Validate"
             action = validate_button.handle_event(event)
             if action == "validate":
-                for i in range(num_processes):
-                    if arrival_time[i] != "" and burst_time[i] != "":
-                        process_list = []
-                        if algo_name == "First Come First Serve" or algo_name=="Shortest Job Next":
-                            process_list = []
-                            arrival_times = []
-                            burst_times = []                     
-                            for i in range(len(arrival_time)):
-                                process_list.append("P"+str(i+1))
-                                arrival_times.append(int(arrival_time[i]))
-                                burst_times.append(int(burst_time[i]))
-                            if algo_name == "First Come First Serve":
-                                parameters = [process_list, arrival_times, burst_times]
-                                result = FCFS(*parameters)
-                                if comparison_data is not None :
-                                    comparison_data['original_params'] = parameters
-                                    comparison_data['original_result'] = result
-                            elif algo_name == "Shortest Job Next":
-                                parameters = [process_list, arrival_times, burst_times]
-                                result = SJN(*parameters)
-                                if comparison_data is not None :
-                                    comparison_data['original_params'] = parameters
-                                    comparison_data['original_result'] = result
-                            print(result)
-                            validate_button.visibility = False
-                            compare_button.visibility = True
-                            table_data = [["Process", "Arrival Time", "Burst Time","Completion Time", "Turnaround Time", "Waiting Time"]]
-                            for i in range(1, num_processes + 1):
-                                table_data.append([f"P{i}", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
-                        elif algo_name == "Round Robin":                         
-                            process_list = []
-                            arrival_times = []
-                            burst_times = []                      
-                            for i in range(len(arrival_time)):
-                                process_list.append("P"+str(i+1))
-                                arrival_times.append(int(arrival_time[i]))
-                                burst_times.append(int(burst_time[i]))
-                            parameters = [process_list, arrival_times, burst_times, quantum_limit_value]
-                            result = RR(*parameters)
-                            if comparison_data is not None :
-                                    comparison_data['original_params'] = parameters
-                                    comparison_data['original_result'] = result
-                            print(result)
-                            compare_button.visibility = True
-                            validate_button.visibility = False
-                            quantum_limit_button.visibility = False
-                            input_box.visibility = False
-                            table_data = [["Process", "Arrival Time", "Burst Time","Completion Time", "Turnaround Time", "Waiting Time"]]
-                            for i in range(1, num_processes + 1):
-                                table_data.append([f"P{i}", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
-                        elif algo_name == "Rate Monotonic":
-                            process_list = []
-                            arrival_times = []
-                            execution_times = []
-                            periods = []                       
-                            for i in range(len(arrival_time)):
-                                process_list.append("P"+str(i+1))
-                                arrival_times.append(int(arrival_time[i]))
-                                execution_times.append(int(burst_time[i]))
-                                periods.append(int(period[i]))
-                            parameters = [process_list,arrival_times, execution_times, periods, quantum_limit_value]
-                            result = RM(*parameters)
-                            if comparison_data is not None :
-                                    comparison_data['original_params'] = parameters
-                                    comparison_data['original_result'] = result
-                            print(result)
-                            compare_button.visibility = True 
-                            validate_button.visibility = False
-                            quantum_limit_button.visibility = False
-                            input_box.visibility = False
-                            table_data = [["Process", "Arrival Time", "Execution Time", "Period", "Completion Time", "Turnaround Time", "Waiting Time"]]
-                            for i in range(1, num_processes + 1):
-                                table_data.append([f"P{i}", "", "", "", str(result["Response Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
-                        elif algo_name == "Earliest Deadline First":
-                            process_list = []
-                            arrival_times = []
-                            execution_times = []
-                            deadlines = [] 
-                            periods = []                      
-                            for i in range(len(arrival_time)):
-                                process_list.append("P"+str(i+1))
-                                arrival_times.append(int(arrival_time[i]))
-                                execution_times.append(int(burst_time[i]))
-                                deadlines.append(int(deadline[i]))
-                                periods.append(int(period[i]))
-                            parameters = [process_list,arrival_times, execution_times, deadlines, periods, quantum_limit_value]
-                            result = EDF(*parameters)
-                            if comparison_data is not None :
-                                    comparison_data['original_params'] = parameters
-                                    comparison_data['original_result'] = result
-                            print(result)
-                            compare_button.visibility = True 
-                            validate_button.visibility = False
-                            quantum_limit_button.visibility = False
-                            input_box.visibility = False
+                try:
+                    for i in range(num_processes):
+                        if arrival_time[i] == "" or burst_time[i] == "":
+                            raise ValueError("Tous les champs doivent être remplis.")
+
+                        # Vérification que ce sont bien des entiers
+                        int(arrival_time[i])
+                        int(burst_time[i])
+
+                        if algo_name == "Rate Monotonic" or algo_name == "Earliest Deadline First":
+                            int(period[i])
+                        if algo_name == "Earliest Deadline First":
+                            int(deadline[i])
+
+                except ValueError as e:
+                    print("Erreur : Tous les champs doivent contenir des entiers valides.")
+                    continue  # On saute cette itération pour laisser l'utilisateur corriger
+                process_list = []
+                if algo_name == "First Come First Serve" or algo_name=="Shortest Job Next":
+                    process_list = []
+                    arrival_times = []
+                    burst_times = []                     
+                    for i in range(len(arrival_time)):
+                        process_list.append("P"+str(i+1))
+                        arrival_times.append(int(arrival_time[i]))
+                        burst_times.append(int(burst_time[i]))
+                    if algo_name == "First Come First Serve":
+                        parameters = [process_list, arrival_times, burst_times]
+                        result = FCFS(*parameters)
+                        if comparison_data is not None :
+                            comparison_data['original_params'] = parameters
+                            comparison_data['original_result'] = result
+                    elif algo_name == "Shortest Job Next":
+                        parameters = [process_list, arrival_times, burst_times]
+                        result = SJN(*parameters)
+                        if comparison_data is not None :
+                            comparison_data['original_params'] = parameters
+                            comparison_data['original_result'] = result
+                    print(result)
+                    validate_button.visibility = False
+                    compare_button.visibility = True
+                    table_data = [["Process", "Arrival Time", "Burst Time","Completion Time", "Turnaround Time", "Waiting Time"]]
+                    for i in range(1, num_processes + 1):
+                        table_data.append([f"P{i}", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
+                elif algo_name == "Round Robin":                         
+                    process_list = []
+                    arrival_times = []
+                    burst_times = []                      
+                    for i in range(len(arrival_time)):
+                        process_list.append("P"+str(i+1))
+                        arrival_times.append(int(arrival_time[i]))
+                        burst_times.append(int(burst_time[i]))
+                    parameters = [process_list, arrival_times, burst_times, quantum_limit_value]
+                    result = RR(*parameters)
+                    if comparison_data is not None :
+                            comparison_data['original_params'] = parameters
+                            comparison_data['original_result'] = result
+                    print(result)
+                    compare_button.visibility = True
+                    validate_button.visibility = False
+                    quantum_limit_button.visibility = False
+                    input_box.visibility = False
+                    table_data = [["Process", "Arrival Time", "Burst Time","Completion Time", "Turnaround Time", "Waiting Time"]]
+                    for i in range(1, num_processes + 1):
+                        table_data.append([f"P{i}", "", "", str(result["Completion Time"][f"P{i}"]), str(result["Turnaround Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
+                elif algo_name == "Rate Monotonic":
+                    process_list = []
+                    arrival_times = []
+                    execution_times = []
+                    periods = []                       
+                    for i in range(len(arrival_time)):
+                        process_list.append("P"+str(i+1))
+                        arrival_times.append(int(arrival_time[i]))
+                        execution_times.append(int(burst_time[i]))
+                        periods.append(int(period[i]))
+                    parameters = [process_list,arrival_times, execution_times, periods, quantum_limit_value]
+                    result = RM(*parameters)
+                    if comparison_data is not None :
+                            comparison_data['original_params'] = parameters
+                            comparison_data['original_result'] = result
+                    print(result)
+                    compare_button.visibility = True 
+                    validate_button.visibility = False
+                    quantum_limit_button.visibility = False
+                    input_box.visibility = False
+                    table_data = [["Process", "Arrival Time", "Execution Time", "Period", "Completion Time", "Turnaround Time", "Waiting Time"]]
+                    for i in range(1, num_processes + 1):
+                        table_data.append([f"P{i}", "", "", "", str(result["Response Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
+                elif algo_name == "Earliest Deadline First":
+                    process_list = []
+                    arrival_times = []
+                    execution_times = []
+                    deadlines = [] 
+                    periods = []                      
+                    for i in range(len(arrival_time)):
+                        process_list.append("P"+str(i+1))
+                        arrival_times.append(int(arrival_time[i]))
+                        execution_times.append(int(burst_time[i]))
+                        deadlines.append(int(deadline[i]))
+                        periods.append(int(period[i]))
+                    parameters = [process_list,arrival_times, execution_times, deadlines, periods, quantum_limit_value]
+                    result = EDF(*parameters)
+                    if comparison_data is not None :
+                            comparison_data['original_params'] = parameters
+                            comparison_data['original_result'] = result
+                    print(result)
+                    compare_button.visibility = True 
+                    validate_button.visibility = False
+                    quantum_limit_button.visibility = False
+                    input_box.visibility = False
                             
-                            table_data = [["Process", "Arrival Time", "Execution Time", "Period", "Completion Time", "Turnaround Time", "Waiting Time"]]
-                            for i in range(1, num_processes + 1):
-                                table_data.append([f"P{i}", "", "", "","", str(result["Response Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
-                        if algo_name == "FCFS" or algo_name=="Shortest Job Next" or algo_name=="Round Robin":
-                            result_text_box.text= "Average Turnaround Time : " + str(result["Average Turnaround Time"])
-                        elif algo_name == "Rate Monotonic" or algo_name == "Earliest Deadline First":
-                            result_text_box.text= "CPU Utilization : " + str(result["CPU Utilization"])
-                        result_text_box2.text = f"Average Waiting Time : {result['Average Waiting Time']:.2f}"
-                        result_text_box.visibility = True
-                        result_text_box2.visibility = True
+                    table_data = [["Process", "Arrival Time", "Execution Time", "Period", "Completion Time", "Turnaround Time", "Waiting Time"]]
+                    for i in range(1, num_processes + 1):
+                        table_data.append([f"P{i}", "", "", "","", str(result["Response Time"][f"P{i}"]), str(result["Waiting Time"][f"P{i}"])])
+                if algo_name == "First Come First Serve" or algo_name == "Shortest Job Next" or algo_name == "Round Robin":
+                    result_text_box.text= f"Average Turnaround Time : {result['Average Turnaround Time']:.2f}"
+                elif algo_name == "Rate Monotonic" or algo_name == "Earliest Deadline First":
+                    result_text_box.text= f"CPU Utilization : {result['CPU Utilization']:.2f}"
+                result_text_box2.text = f"Average Waiting Time : {result['Average Waiting Time']:.2f}"
+                result_text_box.visibility = True
+                result_text_box2.visibility = True
 
-                        ##########------------------------------------------------------------##########
-                        start_simulation_button.visibility = True
-                        simulation_active = False  # Initialise la simulation
-                        simulation_step = 0
-                        ##########------------------------------------------------------------##########
+                ##########------------------------------------------------------------##########
+                start_simulation_button.visibility = True
+                simulation_active = False  # Initialise la simulation
+                simulation_step = 0
+                ##########------------------------------------------------------------##########
 
-                    else : print("Enter the parameters before validate")
+            else : print("Enter the parameters before validate")
             ##########------------------------------------------------------------##########
             action = start_simulation_button.handle_event(event)
             if action == "start_simulation":
@@ -1237,6 +1259,13 @@ def draw_algorithm_page(screen, algo_name):
                 timeline_box = TimelineBox(time_x + i * (screen_height/21.6), timeline_y, screen_height/22.5, screen_height/22.5, pid, active=active)
                 timeline_box.draw(screen)
         ##########------------------------------------------------------------##########
+        if error_message:
+            error_font = pygame.font.SysFont("Arial", int(screen_height / 36))
+            error_surface = error_font.render(error_message, True, (255, 0, 0))
+            screen.blit(error_surface, (screen_width / 2 - error_surface.get_width() // 2, screen_height / 1.2))
+            
+            
+
 
         pygame.display.flip()
         clock.tick(360)
