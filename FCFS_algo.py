@@ -13,7 +13,9 @@ def FCFS(processes, arrival_times, burst_times):
     for process in processes:
         pid, at, bt = process
         if time < at:
-            time = at  # Attendre que le processus arrive
+            while time < at:
+                schedule.append(None)  # Ajoute du vide
+                time += 1
         
         for _ in range(bt):
             schedule.append(pid)
