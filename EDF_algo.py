@@ -1,4 +1,4 @@
-def EDF(processes, arrival_times, burst_times, deadlines, periods, time_limit):
+def EDF(processes, arrival_times, execution_times, deadlines, periods, time_limit):
     from collections import deque
 
     # Initialisation
@@ -20,7 +20,7 @@ def EDF(processes, arrival_times, burst_times, deadlines, periods, time_limit):
             if current_time >= next_release[p] and current_time >= arrival_times[i]:
                 instance_id = len([d for d in deadlines_map if d.startswith(p)])
                 instance_name = f"{p}_{instance_id}"
-                remaining_bt[instance_name] = burst_times[i]
+                remaining_bt[instance_name] = execution_times[i]
                 deadlines_map[instance_name] = current_time + deadlines[i]
                 next_release[p] += periods[i]
 
@@ -40,45 +40,81 @@ def EDF(processes, arrival_times, burst_times, deadlines, periods, time_limit):
 
         current_time += 1
 
-    # Calcul des métriques
-    CT, TAT, WT = {}, {}, {}
-    total_tat, total_wt, total_instances = 0, 0, 0
+    # 1. Vérification de la schedulabilité avec la formule d'utilisation CPU
+    utilization = sum(execution_times[i] / periods[i] for i in range(n))
+    bound = n * (2 ** (1/n) - 1)
+    schedulable = utilization <= bound
+    
+    print(f"CPU Utilization: {utilization:.3f}")
+    print(f"Utilization Bound: {bound:.3f}")
+    print(f"Schedulable according to UB test: {schedulable}")
+    
+    import math
+
+    # 2. Analyse de temps de réponse pour chaque tâche
+    # TRIER les tâches selon priorité (plus petite période = plus prioritaire)
+    sorted_tasks = sorted(zip(processes, arrival_times, execution_times, deadlines, periods), key=lambda x: x[3])
+    sorted_processes, _, sorted_execution_times, _, sorted_periods = zip(*sorted_tasks)
+
+    response_times = {}
+    waiting_times = {}
+
+    MAX_ITER = 10  # pour éviter les boucles infinies
 
     for i in range(n):
-        p = processes[i]
-        CT[p] = completed_instances[p]
-        TAT[p] = []
-        WT[p] = []
-        for j, ct in enumerate(CT[p]):
-            release_time = arrival_times[i] + j * periods[i]
-            tat = ct - release_time
-            wt = tat - burst_times[i]
-            TAT[p].append(tat)
-            WT[p].append(wt)
-            total_tat += tat
-            total_wt += wt
-            total_instances += 1
+        C_i = sorted_execution_times[i]
+        T_i = sorted_periods[i]
+        R_prev = C_i
 
-    avg_tat = total_tat / total_instances if total_instances else 0
-    avg_wt = total_wt / total_instances if total_instances else 0
+        for iteration in range(MAX_ITER):
+            interference = 0
+            for j in range(i):  # tâches de priorité plus haute (dans l’ordre trié !)
+                C_j = sorted_execution_times[j]
+                T_j = sorted_periods[j]
+                interference += math.ceil(R_prev / T_j) * C_j
 
+            R_next = C_i + interference
+
+            if R_next == R_prev:
+                break  # Convergence atteinte
+
+            if R_next > T_i:
+                R_next = float('inf')  # Tâche non schedulable
+                break
+
+            R_prev = R_next
+
+        task_name = sorted_processes[i]
+        response_times[task_name] = R_next
+        waiting_times[task_name] = R_next - C_i if R_next != float('inf') else float('inf')
+
+    
+    print("\nResponse Time Analysis:")
+    for i in range(n):
+        print(f"{processes[i]}: R_i = {response_times[processes[i]]}, W_i = {waiting_times[processes[i]]}")
+
+    avg_WT = sum(waiting_times.values()) / n
+
+
+    print("Average WT:", avg_WT)
+    avg_wt = avg_WT
     return {
-        "Completion Time": CT,
-        "Turnaround Time": TAT,
-        "Waiting Time": WT,
-        "Average Turnaround Time": avg_tat,
+        "CPU Utilization": utilization,
+        "Utilization Bound": bound,
+        "Response Time": response_times,
+        "Waiting Time": waiting_times,
         "Average Waiting Time": avg_wt,
-        "Timeline": timeline
+        "Schedule": timeline
     }
 # Exemple d'utilisation
 processes = ['P1', 'P2', 'P3']
 arrival_times = [0, 0, 0]
-burst_times = [3, 2, 2]
+execution_times = [3, 2, 2]
 deadlines = [7, 4, 8]
 periods = [20, 5, 10]
 time_limit = 20
 
-result = EDF(processes, arrival_times, burst_times, deadlines, periods, time_limit)
+result = EDF(processes, arrival_times, execution_times, deadlines, periods, time_limit)
 
 for key, value in result.items():
     print(f"{key}: {value}")

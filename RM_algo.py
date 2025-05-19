@@ -1,4 +1,7 @@
-def RM(processes, arrival_times, burst_times, periods, total_time):
+import numpy as np
+
+
+def RM(processes, arrival_times, execution_times, periods, total_time):
     n = len(processes)
     schedule = []
     
@@ -9,7 +12,6 @@ def RM(processes, arrival_times, burst_times, periods, total_time):
     completions = []  # Liste de tuples (process, completion time)
     
     time = 0
-    active_tasks = []
 
     # Priorités selon période (plus la période est petite, plus la priorité est haute)
     priorities = sorted(range(n), key=lambda i: periods[i])
@@ -18,7 +20,7 @@ def RM(processes, arrival_times, burst_times, periods, total_time):
         # Mise à jour : on relâche les nouvelles instances
         for i in range(n):
             if time == next_arrival[i]:
-                remaining_bt[i] += burst_times[i]
+                remaining_bt[i] += execution_times[i]
                 task_count[i] += 1
                 next_arrival[i] += periods[i]
 
@@ -41,46 +43,69 @@ def RM(processes, arrival_times, burst_times, periods, total_time):
 
         time += 1
 
-    # Recalcul des métriques
-    CT = {p: 0 for p in processes}
-    TAT = {p: 0 for p in processes}
-    WT = {p: 0 for p in processes}
-    count = {p: 0 for p in processes}
+    # 1. Vérification de la schedulabilité avec la formule d'utilisation CPU
+    utilization = sum(execution_times[i] / periods[i] for i in range(n))
+    bound = n * (2 ** (1/n) - 1)
+    schedulable = utilization <= bound
+    
+    print(f"CPU Utilization: {utilization:.3f}")
+    print(f"Utilization Bound: {bound:.3f}")
+    print(f"Schedulable according to UB test: {schedulable}")
+    
+    import math
 
-    for i, p in enumerate(processes):
-        num_instances = task_count[i]
-        period = periods[i]
-        bt = burst_times[i]
-        completed = 0
-        last_completion = 0
-        for t in range(total_time):
-            if schedule[t] == p:
-                if remaining_bt[i] == 0:
-                    last_completion = t + 1
-        CT[p] = last_completion
-        TAT[p] = num_instances * period
-        WT[p] = TAT[p] - (num_instances * bt)
-        count[p] = num_instances
+    # 2. Analyse de temps de réponse pour chaque tâche
+    # TRIER les tâches selon priorité (plus petite période = plus prioritaire)
+    sorted_tasks = sorted(zip(processes, arrival_times, execution_times, periods), key=lambda x: x[3])
+    sorted_processes, _, sorted_execution_times, sorted_periods = zip(*sorted_tasks)
 
-    avg_TAT = sum(TAT.values()) / n
-    avg_WT = sum(WT.values()) / n
+    response_times = {}
+    waiting_times = {}
 
-    print("Schedule:", schedule)
-    print("Completion Time:", CT)
-    print("Turnaround Time:", TAT)
-    print("Waiting Time:", WT)
-    print("Average TAT:", avg_TAT)
+    MAX_ITER = 10  # pour éviter les boucles infinies
+
+    for i in range(n):
+        C_i = sorted_execution_times[i]
+        T_i = sorted_periods[i]
+        R_prev = C_i
+
+        for iteration in range(MAX_ITER):
+            interference = 0
+            for j in range(i):  # tâches de priorité plus haute (dans l’ordre trié !)
+                C_j = sorted_execution_times[j]
+                T_j = sorted_periods[j]
+                interference += math.ceil(R_prev / T_j) * C_j
+
+            R_next = C_i + interference
+
+            if R_next == R_prev:
+                break  # Convergence atteinte
+
+            if R_next > T_i:
+                R_next = float('inf')  # Tâche non schedulable
+                break
+
+            R_prev = R_next
+
+        task_name = sorted_processes[i]
+        response_times[task_name] = R_next
+        waiting_times[task_name] = R_next - C_i if R_next != float('inf') else float('inf')
+
+    
+    print("\nResponse Time Analysis:")
+    for i in range(n):
+        print(f"{processes[i]}: R_i = {response_times[processes[i]]}, W_i = {waiting_times[processes[i]]}")
+
+    avg_WT = sum(waiting_times.values()) / n
+
+
     print("Average WT:", avg_WT)
-    completion_time = CT
-    turnaround_time = TAT
-    waiting_time = WT
-    avg_tat = avg_TAT
     avg_wt = avg_WT
     return {
-        "Completion Time": completion_time,
-        "Turnaround Time": turnaround_time,
-        "Waiting Time": waiting_time,
-        "Average Turnaround Time": avg_tat,
+        "CPU Utilization": utilization,
+        "Utilization Bound": bound,
+        "Response Time": response_times,
+        "Waiting Time": waiting_times,
         "Average Waiting Time": avg_wt,
         "Schedule": schedule
     }
@@ -90,11 +115,9 @@ def RM(processes, arrival_times, burst_times, periods, total_time):
 # Exemple d'utilisation
 processes = ["P1", "P2", "P3"]
 arrival_times = [0, 0, 0]
-burst_times = [1, 2, 3]
+execution_times = [1, 2, 3]
 periods = [4, 5, 10]
 total_time = 20
 
-RM(processes, arrival_times, burst_times, periods, total_time)
+RM(processes, arrival_times, execution_times, periods, total_time)
 # suppose Output: {'Schedule': ['P1','P2','P2','P3','P1','P2','P2','P3','P1','P3','P2','P2','P1','P3','P3','P2','P1','P2','P3','none']
-
-# 'Completion Time': {'P1': 20, 'P2': 20, 'P3': 20}, 'Turnaround Time': {'P1': 20, 'P2': 20, 'P3': 20}, 'Waiting Time': {'P1': 19, 'P2': 18, 'P3': 17}, 'Average TAT': 20.0, 'Average WT': 18.0}
