@@ -7,6 +7,7 @@ from EDF_algo import EDF
 from RM_algo import RM
 from RR_algo import RR
 from SJN_algo import SJN
+import webbrowser
 
 
 font = pygame.font.Font(None, 21)
@@ -23,6 +24,7 @@ def draw_homepage_1(screen):
         Button(button_center_on_x, 100, button_width, button_height, "Beginner", "beginner1"),
         Button(button_center_on_x, 300, button_width, button_height, "Expert", "home2"),
         Button(button_center_on_x, 500, button_width, button_height, "Quit", "quit"),
+        Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
     ]
     
     title = font.render("Tasks Manager", True, (255, 255, 255))
@@ -38,6 +40,8 @@ def draw_homepage_1(screen):
                 if page == "quit":
                     pygame.quit()
                     exit()
+                elif page == "help":
+                    webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
                 else:
                     return page
     return "home"
@@ -50,46 +54,53 @@ def draw_homepage_2(screen, action=None):
 
     if action == None:
         buttons = [
-            Button(100, 100, 200, 50, "Back", "home"),
+            Button(20, 20, 150, 50, "Back", "home"),
             Button(button_center_on_x, 100, button_width, button_height, "First Come First Serve", "fcfs"),
             Button(button_center_on_x, 200, button_width, button_height, "Shortest Job Next", "sjn"),
             Button(button_center_on_x, 300, button_width, button_height, "Round Robin", "rr"),
             Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
             Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
+            Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
         ]
     elif action == "preemption":
         buttons = [
-            Button(100, 100, 200, 50, "Back", "beginner2"),
+            Button(20, 20, 150, 50, "Back", "beginner2"),
             Button(button_center_on_x, 100, button_width, button_height, "First Come First Serve", "fcfs"),
             Button(button_center_on_x, 200, button_width, button_height, "Shortest Job Next", "sjn"),
+            Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
         ]
     elif action == "non_preemption":
         buttons = [
-            Button(100, 100, 200, 50, "Back", "beginner2"),
+            Button(20, 20, 150, 50, "Back", "beginner2"),
             Button(button_center_on_x, 300, button_width, button_height, "Round Robin", "rr"),
             Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
             Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
+            Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
         ]
     elif action == "soft_real_time":
         buttons = [
-            Button(100, 100, 200, 50, "Back", "beginner3"),
+            Button(20, 20, 150, 50, "Back", "beginner3"),
             Button(button_center_on_x, 300, button_width, button_height, "Round Robin", "rr"),
+            Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
         ]
     elif action == "hard_real_time":
         buttons = [
-            Button(100, 100, 200, 50, "Back", "beginner3"),
+            Button(20, 20, 150, 50, "Back", "beginner3"),
             Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
             Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
+            Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
         ]
     elif action == "static_priority":
         buttons = [
-            Button(100, 100, 200, 50, "Back", "beginner4"),
+            Button(20, 20, 150, 50, "Back", "beginner4"),
             Button(button_center_on_x, 400, button_width, button_height, "Rate Monotonic", "rm"),
+            Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
         ]
     elif action == "dynamic_priority":
         buttons = [
-            Button(100, 100, 200, 50, "Back", "beginner4"),
+            Button(20, 20, 150, 50, "Back", "beginner4"),
             Button(button_center_on_x, 500, button_width, button_height, "Earliest Deadline First", "edf"),
+            Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
         ]
     
     title = font.render("Tasks Manager", True, (255, 255, 255))
@@ -102,7 +113,10 @@ def draw_homepage_2(screen, action=None):
         for button in buttons :
             page = button.handle_event(event)
             if page:
-                return page
+                if page == "help":
+                    webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
+                else :
+                    return page
     return "home2"
 
 def draw_beginner_page_1(screen):
@@ -115,7 +129,8 @@ def draw_beginner_page_1(screen):
         Button(button_center_on_x, 200, button_width, button_height, "Based on Preemption", "beginner2"),
         Button(button_center_on_x, 400, button_width, button_height, " Based on Timing Constraints", "beginner3"),
         Button(button_center_on_x, 600, button_width, button_height, " Based on Priority Assignments", "beginner4"),
-        Button(100, 100, 200, 50, "Back", "home"),
+        Button(20, 20, 150, 50, "Back", "home"),
+        Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
     ] 
     
     title = font.render("Tasks Manager", True, (255, 255, 255))
@@ -128,7 +143,10 @@ def draw_beginner_page_1(screen):
         for button in buttons :
             action = button.handle_event(event)
             if action:
-                return action
+                if action == "help":
+                    webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
+                else :
+                    return action
     return "beginner1"
 
 def draw_beginner_page_2(screen):
@@ -140,7 +158,8 @@ def draw_beginner_page_2(screen):
     buttons = [
         Button(button_center_on_x, 300, button_width, button_height, "Preemptive Scheduling", "preemption"),
         Button(button_center_on_x, 500, button_width, button_height, "Non-Preemptive Scheduling", "non_preemption"),
-        Button(100, 100, 200, 50, "Back", "beginner1"),
+        Button(20, 20, 150, 50, "Back", "beginner1"),
+        Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
     ]
     
     title = font.render("Tasks Manager", True, (255, 255, 255))
@@ -158,7 +177,10 @@ def draw_beginner_page_2(screen):
             if action:
                 if action == "beginner1":
                     return (action, None)
-                return ("home2", action)
+                elif action == "help":
+                    webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
+                else : 
+                    return ("home2", action)
     return ("beginner2", None)
 
 def draw_beginner_page_3(screen):
@@ -170,7 +192,8 @@ def draw_beginner_page_3(screen):
     buttons = [
         Button(button_center_on_x, 300, button_width, button_height, "Soft Real-Time Scheduling", "soft_real_time"),
         Button(button_center_on_x, 500, button_width, button_height, "Hard Real-Time Scheduling", "hard_real_time"),
-        Button(100, 100, 200, 50, "Back", "beginner1"),
+        Button(20, 20, 150, 50, "Back", "beginner1"),
+        Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
     ]
     
     title = font.render("Tasks Manager", True, (255, 255, 255))
@@ -188,7 +211,10 @@ def draw_beginner_page_3(screen):
             if action:
                 if action == "beginner1":
                     return (action, None)
-                return ("home2", action)
+                elif action == "help":
+                    webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
+                else: 
+                    return ("home2", action)
     return ("beginner3", None)
 
 def draw_beginner_page_4(screen):
@@ -200,7 +226,8 @@ def draw_beginner_page_4(screen):
     buttons = [
         Button(button_center_on_x, 300, button_width, button_height, "Static Priority Scheduling", "static_priority"),
         Button(button_center_on_x, 500, button_width, button_height, "Dynamic Priority Scheduling", "dynamic_priority"),
-        Button(100, 100, 200, 50, "Back", "beginner1"),
+        Button(20, 20, 150, 50, "Back", "beginner1"),
+        Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
     ]
     
     title = font.render("Tasks Manager", True, (255, 255, 255))
@@ -218,7 +245,10 @@ def draw_beginner_page_4(screen):
             if action:
                 if action == "beginner1":
                     return (action, None)
-                return ("home2", action)
+                elif action == "help":
+                    webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
+                else:
+                    return ("home2", action)
     return ("beginner4", None)
 
 def draw_fcfs_page(screen):
@@ -292,7 +322,7 @@ def compare_results(screen, original_algo, original_params, original_result):
             buttons.append(btn)
             y += 100
 
-    back_btn = Button(100, 600, 200, 50, "Back", "home2")
+    back_btn = Button(20, 20, 150, 50, "Back", "home2")
 
     while True:
         screen.fill((30, 30, 30))
@@ -387,7 +417,8 @@ def draw_comparison_page(screen):
         'earliest deadline first': "Earliest Deadline First",
     }
     # Configuration de l'affichage
-    back_btn = Button(50, 50, 150, 50, "Back", "home2")
+    back_btn = Button(20, 20, 150, 50, "Back", "home2")
+    help_btn = Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
     tables_y = 150
     cell_width = 250
     cell_height = 50
@@ -411,6 +442,7 @@ def draw_comparison_page(screen):
 
         # Bouton de retour
         back_btn.draw(screen)
+        help_btn.draw(screen)
         
         # Gestion des événements
         for event in pygame.event.get():
@@ -421,7 +453,11 @@ def draw_comparison_page(screen):
             if action:
                 comparison_data = None
                 return action
-        
+            
+            action = help_btn.handle_event(event)
+            if action:
+                webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
+
         pygame.display.flip()
         pygame.time.Clock().tick(30)
 
@@ -462,12 +498,14 @@ def ask_for_parameter(screen, label):
     input_box = InputBox(screen.get_width() // 2 - 100, screen.get_height() // 2, 200, 50)
     font = pygame.font.Font(None, 36)
     validate_button = Button(screen.get_width() // 2 - 100, screen.get_height() // 2 + 70, 200, 50, "Validate", "validate")
+    help_button = Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
     while True:
         screen.fill((30, 30, 30))
         text = font.render(label, True, (255, 255, 255))
         screen.blit(text, (screen.get_width() // 2 - text.get_width() // 2, screen.get_height() // 2 - 60))
         input_box.draw(screen)
         validate_button.draw(screen)
+        help_button.draw(screen)
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -480,6 +518,9 @@ def ask_for_parameter(screen, label):
                     return input_box.text
                 except ValueError:
                     pass  # Ignore invalid input, let user retry
+            action = help_button.handle_event(event)
+            if action == "help":
+                webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 try:
                     return input_box.text
@@ -514,7 +555,8 @@ def compare_results(screen, original_algo, original_params, original_result):
             buttons.append(btn)
             y += 100
 
-    back_btn = Button(100, 600, 200, 50, "Back", "home2")
+    back_btn = Button(20, 20, 150, 50, "Back", "home2")
+    help_btn = Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
 
     while True:
         screen.fill((30, 30, 30))
@@ -532,6 +574,10 @@ def compare_results(screen, original_algo, original_params, original_result):
                 comparison_data = None
                 return action
             
+            action = help_btn.handle_event(event)
+            if action:
+                webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
+
             for btn in buttons:
                 action = btn.handle_event(event)
                 if action and action.startswith("compare_"):
@@ -582,6 +628,7 @@ def compare_results(screen, original_algo, original_params, original_result):
         for btn in buttons:
             btn.draw(screen)
         back_btn.draw(screen)
+        help_btn.draw(screen)
         pygame.display.flip()
         pygame.time.Clock().tick(30)
 
@@ -609,7 +656,8 @@ def draw_comparison_page(screen):
         'earliest deadline first': "Earliest Deadline First",
     }
     # Configuration de l'affichage
-    back_btn = Button(50, 50, 150, 50, "Back", "home2")
+    back_btn = Button(20, 20, 150, 50, "Back", "home2")
+    help_btn = Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
     tables_y = 150
     cell_width = 250
     cell_height = 50
@@ -633,6 +681,7 @@ def draw_comparison_page(screen):
 
         # Bouton de retour
         back_btn.draw(screen)
+        help_btn.draw(screen)
         
         # Gestion des événements
         for event in pygame.event.get():
@@ -643,7 +692,10 @@ def draw_comparison_page(screen):
             if action:
                 comparison_data = None
                 return action
-        
+            action = help_btn.handle_event(event)
+            if action:
+                webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
+
         pygame.display.flip()
         pygame.time.Clock().tick(30)
 
@@ -684,7 +736,8 @@ def draw_avg_comparison(screen, algo1, res1, algo2, res2, x, y):
 def draw_algorithm_page(screen, algo_name):
     global comparison_data
     # Bouton "Retour"
-    back_button = Button(50, 50, 150, 50, "Back", "home2")
+    back_button = Button(20, 20, 150, 50, "Back", "home2")
+    help_button = Button(20, screen.get_height() - 70, 150, 50, "Help", "help")
     add_button = Button(screen.get_width() - 250, 100, 200, 50, "Add Processes", "add_processes")
     validate_button = Button(screen.get_width() - 250, 200, 200, 50, "Validate", "validate")
     validate_button.visibility = False
@@ -742,7 +795,9 @@ def draw_algorithm_page(screen, algo_name):
             action = back_button.handle_event(event)
             if action:
                 return action  # Sortir de la fonction si "Retour" est cliqué
-
+            action = help_button.handle_event(event)
+            if action:
+                webbrowser.open("https://github.com/Thibaud95/Project_IN422/blob/main/README.md")
             # Gestion du bouton "Add Processes"
             action = add_button.handle_event(event)
             if action == "add_processes":
@@ -939,6 +994,7 @@ def draw_algorithm_page(screen, algo_name):
 
         # Dessiner les boutons
         back_button.draw(screen)
+        help_button.draw(screen)
         add_button.draw(screen)
 
         validate_button.draw(screen)
